@@ -59,13 +59,18 @@ public class MenuSearch extends GameUI.Hidewnd {
 
         @Override
         public void tick(double dt) {
-            if (ui != null && (refresh || pagnum != ui.sess.glob.paginae.size())) {
+            GameUI gui = gameui();
+            if (gui == null || gui.menu == null)
+                return;
+
+            Set<MenuGrid.Pagina> paginae = gui.menu.paginae;
+            if (ui != null && (refresh || pagnum != paginae.size())) {
                 refresh = false;
-                pagnum = ui.sess.glob.paginae.size();
+                pagnum = paginae.size();
 
                 acts.clear();
-                synchronized (ui.sess.glob.paginae) {
-                    for (Glob.Pagina pag : ui.sess.glob.paginae) {
+                synchronized (paginae) {
+                    for (MenuGrid.Pagina pag : paginae) {
                         try {
                             Resource res = pag.res.get();
                             if (!res.name.startsWith("paginae/bld") && !res.name.startsWith("paginae/craft"))
@@ -130,12 +135,12 @@ public class MenuSearch extends GameUI.Hidewnd {
     }
 
     private static class Action {
-        private final Glob.Pagina pagina;
+        private final MenuGrid.Pagina pagina;
         private Tex img;
         private Tex name;
         private String sortkey = "\uffff";
 
-        private Action(Glob.Pagina pagina, String sortkey) {
+        private Action(MenuGrid.Pagina pagina, String sortkey) {
             this.pagina = pagina;
             this.sortkey = sortkey;
         }

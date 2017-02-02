@@ -24,50 +24,45 @@
  *  Boston, MA 02111-1307 USA
  */
 
-package haven;
+package haven.resutil;
+
+import haven.*;
 
 import java.awt.image.BufferedImage;
 
 public class Curiosity extends ItemInfo.Tip {
     public final int exp, mw, enc;
+    public final double time;
 
-    public Curiosity(Owner owner, int exp, int mw, int enc) {
+    public Curiosity(Owner owner, int exp, int mw, int enc, int time) {
         super(owner);
         this.exp = exp;
         this.mw = mw;
         this.enc = enc;
+        this.time = time / Glob.SERVER_TIME_RATIO / 60;
     }
 
-    private String LPH() {
-        Resource res;
-        try {
-            res = ((GItem) owner).resource();
-        } catch (Loading l) {
-            return "";
-        }
+    private String timefmt() {
+        int hours = (int) (time / 60.0);
+        int minutes = (int) ((time % 60));
 
-        Double st = CurioStudyTimes.curios.get(res.basename());
-        if (st == null)
-            return "";
+        String fmt = Resource.getLocString(Resource.BUNDLE_LABEL, "Study time: %s (LP/hour: $col[192,192,255]{%d})");
+        String hstr = hours > 0 ? String.format(Resource.getLocString(Resource.BUNDLE_LABEL, "$col[192,255,192]{%d} h "), hours) : "";
+        String mstr = minutes > 0 ? String.format(Resource.getLocString(Resource.BUNDLE_LABEL, "$col[192,255,192]{%d} m"), minutes) : "";
 
-        int studytime = (int) (st * 60);
-        int hours = studytime / 60;
-        int minutes = studytime - hours * 60;
-
-        String fmt = Resource.getLocString(Resource.BUNDLE_LABEL, "Study time: %s (LP/hour: $col[255,192,255]{%d})");
-
-        String hstr = hours > 0 ? String.format(Resource.getLocString(Resource.BUNDLE_LABEL, "$col[255,192,255]{%d} h "), hours) : "";
-        String mstr = minutes > 0 ? String.format(Resource.getLocString(Resource.BUNDLE_LABEL, "$col[255,192,255]{%d} m"), minutes) : "";
-
-        return String.format(fmt, hstr + mstr, (int) (exp / st));
+        return String.format(fmt, hstr + mstr, (int) Math.round(exp / (time / 60)));
     }
 
     public BufferedImage tipimg() {
         StringBuilder buf = new StringBuilder();
-        buf.append(String.format(Resource.getLocString(Resource.BUNDLE_LABEL, "Learning points: $col[192,192,255]{%s}\nMental weight: $col[255,192,255]{%d}\n"), Utils.thformat(exp), mw));
+        if (exp > 0)
+            buf.append(String.format("Learning points: $col[192,192,255]{%s}\n", Utils.thformat(exp)));
+        if (mw > 0)
+            buf.append(String.format("Mental weight: $col[255,192,255]{%d}\n", mw));
         if (enc > 0)
-            buf.append(String.format(Resource.getLocString(Resource.BUNDLE_LABEL, "Experience cost: $col[255,255,192]{%d}\n"), enc));
-        buf.append(LPH());
+            buf.append(String.format("Experience cost: $col[255,255,192]{%d}\n", enc));
+        if (time > 0)
+            buf.append(timefmt());
         return (RichText.render(buf.toString(), 0).img);
     }
 }

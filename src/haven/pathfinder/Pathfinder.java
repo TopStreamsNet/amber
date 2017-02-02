@@ -139,7 +139,7 @@ public class Pathfinder implements Runnable {
             mc = new Coord2d(src.x + e.dest.x - Map.origin, src.y + e.dest.y - Map.origin).floor(posres);
 
             if (action != null && !it.hasNext())
-                mv.gameui().menu.wdgmsg("act", new Object[]{action});
+                mv.gameui().act(action);
 
             if (gob != null && !it.hasNext())
                 mv.wdgmsg("click", gob.sc, mc, clickb, modflags, 0, (int) gob.id, gob.rc.floor(posres), 0, meshid);

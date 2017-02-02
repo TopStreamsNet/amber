@@ -26,6 +26,7 @@
 
 package haven;
 
+import haven.resutil.Curiosity;
 import haven.resutil.FoodInfo;
 
 import java.awt.*;
@@ -34,6 +35,7 @@ import java.util.*;
 import java.util.List;
 
 import static haven.PUtils.*;
+
 
 public class CharWnd extends Window {
     public static final RichText.Foundry ifnd = new RichText.Foundry(Resource.remote(), java.awt.font.TextAttribute.FAMILY, "SansSerif", java.awt.font.TextAttribute.SIZE, Config.fontsizeglobal).aa(true);
@@ -692,7 +694,8 @@ public class CharWnd extends Window {
         }
 
         private void upd() {
-            int texp = 0, tw = 0, tenc = 0, tlph = 0;
+            int texp = 0, tw = 0, tenc = 0;
+            double tlph = 0;
             for (GItem item : study.children(GItem.class)) {
                 try {
                     Curiosity ci = ItemInfo.find(Curiosity.class, item.info());
@@ -700,17 +703,7 @@ public class CharWnd extends Window {
                         texp += ci.exp;
                         tw += ci.mw;
                         tenc += ci.enc;
-
-                        try {
-                            Resource res = item.getres();
-                            if (res != null) {
-                                Double t = CurioStudyTimes.curios.get(res.basename());
-                                if (t != null) {
-                                    tlph += Math.round(ci.exp / t);
-                                }
-                            }
-                        } catch (Loading l) {
-                        }
+                        tlph += (ci.exp / (ci.time / 60));
                     }
                 } catch (Loading l) {
                 }
@@ -718,7 +711,7 @@ public class CharWnd extends Window {
             this.texp = texp;
             this.tw = tw;
             this.tenc = tenc;
-            this.tlph = tlph;
+            this.tlph = (int) Math.round(tlph);
         }
 
         public void draw(GOut g) {

@@ -27,6 +27,7 @@
 package haven;
 
 import haven.res.ui.tt.q.qbuff.QBuff;
+import haven.resutil.Curiosity;
 
 import java.awt.Color;
 import java.util.*;
@@ -118,22 +119,14 @@ public class GItem extends AWidget implements ItemInfo.SpriteOwner, GSprite.Owne
     }
 
     public boolean updatetimelefttex() {
-        Resource res;
-        try {
-            res = resource();
-        } catch (Loading l) {
-            return false;
-        }
-
         if (studytime == 0.0) {
-            Double st = CurioStudyTimes.curios.get(res.basename());
-            if (st == null)
+            Curiosity ci = ItemInfo.find(Curiosity.class,  info());
+            if (ci == null || ci.time < 1)
                 return false;
-            studytime = st;
+            studytime = ci.time;
         }
 
-        double timeneeded = studytime * 60;
-        int timeleft = (int) timeneeded * (100 - meter) / 100;
+        int timeleft = (int) studytime * (100 - meter) / 100;
         int hoursleft = timeleft / 60;
         int minutesleft = timeleft - hoursleft * 60;
 
@@ -217,7 +210,7 @@ public class GItem extends AWidget implements ItemInfo.SpriteOwner, GSprite.Owne
         for (ItemInfo info : infolist) {
             if (info instanceof QBuff)
                 q = ((QBuff)info).q;
-            else if (info.getClass() == Curiosity.class)
+            else if (info.getClass() == haven.resutil.Curiosity.class)
                 curio = true;
         }
         quality = new Quality(q, curio);

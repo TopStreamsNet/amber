@@ -323,7 +323,7 @@ public class Config {
         put("rabbit", new CheckListboxItem("Rabbit"));
     }};
 
-    public final static Map<String, Tex> additonalicons = new HashMap<String, Tex>(26) {{
+    public final static Map<String, Tex> additonalicons = new HashMap<String, Tex>(27) {{
         put("gfx/terobjs/vehicle/bram", Resource.loadtex("gfx/icons/bram"));
         put("gfx/kritter/toad/toad", Resource.loadtex("gfx/icons/toad"));
         put("gfx/terobjs/vehicle/rowboat", Resource.loadtex("gfx/icons/rowboat"));
@@ -352,11 +352,13 @@ public class Config {
         put("gfx/kritter/reddeer/reddeer", Resource.loadtex("gfx/icons/reddeer"));
         put("gfx/kritter/troll/troll", Resource.loadtex("gfx/icons/troll"));
         put("gfx/kritter/walrus/walrus", Resource.loadtex("gfx/icons/walrus"));
+        put("gfx/kritter/walrus/walrus", Resource.loadtex("gfx/icons/walrus"));
+        put("gfx/kritter/wolverine/wolverine", Resource.loadtex("gfx/icons/wolverine"));
     }};
 
     public final static Set<String> dangerousgobres = new HashSet<String>(Arrays.asList(
             "gfx/kritter/bat/bat", "gfx/kritter/bear/bear", "gfx/kritter/boar/boar", "gfx/kritter/lynx/lynx", "gfx/kritter/walrus/walrus",
-            "gfx/kritter/badger/badger"));
+            "gfx/kritter/badger/badger", "gfx/kritter/wolverine/wolverine"));
 
     public final static Set<String> foragables = new HashSet<String>(Arrays.asList(
             "gfx/terobjs/herbs/flotsam", "gfx/terobjs/herbs/chimingbluebell", "gfx/terobjs/herbs/edelweiss",
