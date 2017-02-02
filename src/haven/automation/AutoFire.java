@@ -15,7 +15,7 @@ public class AutoFire extends Window implements GobSelectCallback {
 	private static final Text.Foundry countf = new Text.Foundry(Text.sans.deriveFont(Font.BOLD), 12).aa(true);
 	private List<Gob> fires = new ArrayList<>();
 	private List<Gob> stockpiles = new ArrayList<>();
-	private final Label lblc, lbls;
+	private final Label lblf, lbls;
 	public boolean terminate = false;
 	private Button clearbtn, runbtn, stopbtn;
 	private static final int TIMEOUT = 2000;
@@ -26,13 +26,13 @@ public class AutoFire extends Window implements GobSelectCallback {
 	public AutoFire() {
 		super(new Coord(270, 180), "Auto Fire");
 
-		final Label lbl = new Label("Alt + Click to select crucibles and stockpiles.", infof);
+		final Label lbl = new Label("Alt + Click to select fireplaces and stockpiles.", infof);
 		add(lbl, new Coord(30, 20));
 
 		Label lblctxt = new Label("Fires Selected:", infof);
 		add(lblctxt, new Coord(15, 60));
-		lblc = new Label("0", countf, true);
-		add(lblc, new Coord(110, 58));
+		lblf = new Label("0", countf, true);
+		add(lblf, new Coord(110, 58));
 
 		Label lblstxt = new Label("Stockpiles Selected:", infof);
 		add(lblstxt, new Coord(135, 60));
@@ -44,7 +44,7 @@ public class AutoFire extends Window implements GobSelectCallback {
 			public void click() {
 				fires.clear();
 				stockpiles.clear();
-				lblc.settext(fires.size() + "");
+				lblf.settext(fires.size() + "");
 				lbls.settext(stockpiles.size() + "");
 			}
 		};
@@ -95,34 +95,22 @@ public class AutoFire extends Window implements GobSelectCallback {
 			GameUI gui = gameui();
 			while (!terminate) {
 				gui.syslog.append("Starting Loop!",Color.CYAN);
-				cloop: for (Gob c : fires) {
+				floop: for (Gob f : fires) {
 					// take fuel from stockpiles if we don't have enough in the
 					// inventory
-					int availableFuelCoal = gui.maininv.getItemPartialCount("Coal");
 					int availableFuelBlock = gui.maininv.getItemPartialCount("Block");
-					int availableFuelBranch = gui.maininv.getItemPartialCount("Branch");
-					if (availableFuelCoal < 9 && availableFuelBlock < 3 && availableFuelBranch < 18)
+					if (availableFuelBlock < 3)
 						getfuel();
 
 					// find one piece of fuel in the inventory
-					WItem fuel = gui.maininv.getItemPartial("Coal");
-					if (fuel == null)
-						fuel = gui.maininv.getItemPartial("Block");
-					if (fuel == null)
-						fuel = gui.maininv.getItemPartial("Branch");
+					WItem fuel = gui.maininv.getItemPartial("Block");
 					if (fuel == null)
 						continue;
 
-					int fuelticks;
-					if (fuel.item.getname().contains("Block"))
-						fuelticks = 50;
-					else if (fuel.item.getname().contains("Coal"))
-						fuelticks = 11;
-					else
-						fuelticks = 5; // branch
+					int fuelticks = 50; // it takes two blocks to fill the fire to 100
 
 					// navigate to fire
-					gui.map.pfRightClick(c, -1, 3, 0, null);
+					gui.map.pfRightClick(f, -1, 3, 0, null);
 					try {
 						gui.map.pfthread.join();
 					} catch (InterruptedException e) {
@@ -157,7 +145,7 @@ public class AutoFire extends Window implements GobSelectCallback {
 					while (gui.hand.isEmpty()) {
 						timeout += HAND_DELAY;
 						if (timeout >= TIMEOUT)
-							continue cloop;
+							continue floop;
 						try {
 							Thread.sleep(HAND_DELAY);
 						} catch (InterruptedException e) {
@@ -169,8 +157,8 @@ public class AutoFire extends Window implements GobSelectCallback {
 						if (terminate)
 							return;
 						while(!gui.hand.isEmpty()){
-						gui.map.wdgmsg("itemact", Coord.z, c.rc.floor(posres), fueltoload == 1 ? 0 : 1, 0, (int) c.id,
-								c.rc.floor(posres), 0, -1);
+						gui.map.wdgmsg("itemact", Coord.z, f.rc.floor(posres), fueltoload == 1 ? 0 : 1, 0, (int) f.id,
+								f.rc.floor(posres), 0, -1);
 						try {
 							Thread.sleep(1000);
 						} catch (InterruptedException e) {
@@ -197,7 +185,7 @@ public class AutoFire extends Window implements GobSelectCallback {
 					}
 
 					WItem hand = gui.vhand;
-					// if the crucible is full already we'll end up with a
+					// if the fireplace is full already we'll end up with a
 					// stockpile on the cursor
 					if (hand != null) {
 						gui.map.wdgmsg("place", Coord.z, 0, 3, 0);
@@ -238,10 +226,8 @@ public class AutoFire extends Window implements GobSelectCallback {
 			}
 
 			// return if got enough fuel
-			int availableFuelCoal = gui.maininv.getItemPartialCount("Coal");
 			int availableFuelBlock = gui.maininv.getItemPartialCount("Block");
-			int availableFuelBranch = gui.maininv.getItemPartialCount("Branch");
-			if (availableFuelCoal >= 9 && availableFuelBlock >= 3 && availableFuelBranch >= 18)
+			if (availableFuelBlock >= 3)
 				return;
 		}
 	}
@@ -253,10 +239,9 @@ public class AutoFire extends Window implements GobSelectCallback {
 			if (res.name.equals("gfx/terobjs/pow")) {
 				if (!fires.contains(gob)) {
 					fires.add(gob);
-					lblc.settext(fires.size() + "");
+					lblf.settext(fires.size() + "");
 				}
-			} else if (res.name.equals("gfx/terobjs/stockpile-coal") || res.name.equals("gfx/terobjs/stockpile-wblock")
-					|| res.name.equals("gfx/terobjs/stockpile-branch")) {
+			} else if (res.name.equals("gfx/terobjs/stockpile-wblock")) {
 				if (!stockpiles.contains(gob)) {
 					stockpiles.add(gob);
 					lbls.settext(stockpiles.size() + "");
