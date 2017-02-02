@@ -29,6 +29,7 @@ package haven;
 import java.util.*;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
+import java.awt.Color;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
@@ -633,6 +634,11 @@ public class Widget {
     }
 
     public void wdgmsg(String msg, Object... args) {
+    	/*try{
+    	gameui().syslog.append(""+msg+" "+args,Color.CYAN);
+    	} catch (Exception e){
+    		
+    	}*/
         wdgmsg(this, msg, args);
     }
 

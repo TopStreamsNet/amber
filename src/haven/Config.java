@@ -112,6 +112,7 @@ public class Config {
     public static boolean autoflay = Utils.getprefb("autoflay", false);
     public static boolean autogiddyup = Utils.getprefb("autogiddyup", false);
     public static boolean autoshear = Utils.getprefb("autoshear", false);
+    public static boolean autoopen = Utils.getprefb("autoopen", false);
     public static boolean runonlogin = Utils.getprefb("runonlogin", false);
     public static Coord chatsz = Utils.getprefc("chatsz", new Coord(683, 111));
     public static boolean autostudy = Utils.getprefb("autostudy", true);

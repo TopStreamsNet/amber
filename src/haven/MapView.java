@@ -79,6 +79,7 @@ public class MapView extends PView implements DTarget, Console.Directory, PFList
     private Pathfinder pf;
     public Thread pfthread;
     public SteelRefueler steelrefueler;
+    public AutoFire autofire;
     public AutoLeveler autoleveler;
     private Thread musselPicker;
     private final PartyHighlight partyHighlight;
@@ -2355,6 +2356,8 @@ public class MapView extends PView implements DTarget, Console.Directory, PFList
             areamine.terminate();
         if (steelrefueler != null)
             steelrefueler.terminate();
+        if (autofire != null)
+            autofire.terminate();
         if (autoleveler != null)
             autoleveler.terminate();
         if (musselPicker != null)

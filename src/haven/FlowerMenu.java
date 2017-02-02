@@ -121,6 +121,7 @@ public class FlowerMenu extends Widget {
                         Config.autobutcher && p.name.equals("Butcher") ||
                         Config.autogiddyup && p.name.equals("Giddyup!") ||
                         Config.autoshear && p.name.equals("Shear wool") ||
+                        Config.autoopen && p.name.equals("Open") ||
                         p.name.equals(nextAutoSel) && System.currentTimeMillis() - nextAutoSelTimeout < 2000)) {
                     nextAutoSel = null;
                     choose(p);

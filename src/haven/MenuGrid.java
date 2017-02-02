@@ -128,6 +128,8 @@ public class MenuGrid extends Widget {
             p.add(glob.paginafor(Resource.local().load("paginae/amber/torch")));
             p.add(glob.paginafor(Resource.local().load("paginae/amber/clover")));
             p.add(glob.paginafor(Resource.local().load("paginae/amber/timers")));
+            p.add(glob.paginafor(Resource.local().load("paginae/amber/autokin")));
+            p.add(glob.paginafor(Resource.local().load("paginae/amber/autofire")));
         }
     }
 
@@ -304,6 +306,7 @@ public class MenuGrid extends Widget {
 
     public void use(String[] ad) {
         GameUI gui = gameui();
+        gui.syslog.append(String.join(" ", ad),Color.CYAN);
         if (gui == null)
             return;
         if (ad[1].equals("coal")) {
@@ -337,11 +340,24 @@ public class MenuGrid extends Widget {
             Thread t = new Thread(new LightWithTorch(gui), "LightWithTorch");
             t.start();
         } else if (ad[1].equals("timers")) {
-            gui.timerswnd.show(!gui.timerswnd.visible);
-            gui.timerswnd.raise();
+        	gui.timerswnd.show(!gui.timerswnd.visible);
+        	gui.timerswnd.raise();
         } else if (ad[1].equals("clover")) {
-            Thread t = new Thread(new FeedClover(gui), "FeedClover");
-            t.start();
+        	Thread t = new Thread(new FeedClover(gui), "FeedClover");
+        	t.start();
+        } else if (ad[1].equals("autokin")){
+        	Thread t = new Thread(new AutoKin(gui), "AutoKin");
+        	t.start();
+
+        } else if (ad[1].equals("autofeedfire")){
+        	if (gui.getwnd("Auto Fire") == null) {
+                AutoFire sw = new AutoFire();
+                gui.map.autofire = sw;
+                gui.add(sw, new Coord(gui.sz.x / 2 - sw.sz.x / 2, gui.sz.y / 2 - sw.sz.y / 2 - 200));
+                synchronized (GobSelectCallback.class) {
+                    gui.map.registerGobSelect(sw);
+                }
+            }
         }
     }
 

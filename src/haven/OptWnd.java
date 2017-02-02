@@ -1441,6 +1441,17 @@ public class OptWnd extends Window {
                 a = val;
             }
         });
+        appender.add(new CheckBox("Automatically select 'Open' action") {
+            {
+                a = Config.autoopen;
+            }
+
+            public void set(boolean val) {
+                Utils.setprefb("autoopen", val);
+                Config.autoopen = val;
+                a = val;
+            }
+        });
         appender.add(new CheckBox("Automatically pick all clustered mussels (auto 'Pick' needs to be enabled)") {
             {
                 a = Config.autopickmussels;

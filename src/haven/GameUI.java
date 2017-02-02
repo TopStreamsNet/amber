@@ -26,6 +26,7 @@
 
 package haven;
 
+import haven.automation.AutoKin;
 import haven.automation.ErrorSysMsgCallback;
 import haven.automation.PickForageable;
 
@@ -1003,6 +1004,11 @@ public class GameUI extends ConsoleHost implements Console.Directory {
             Thread t = new Thread(new PickForageable(this), "PickForageable");
             t.start();
             return true;
+        } else if (ev.isControlDown() && ev.getKeyCode() == KeyEvent.VK_K){
+        	// AutoKin
+        	Thread t = new Thread(new AutoKin(this), "AutoKin");
+        	t.start();
+        	return true;
         }
         return (super.globtype(key, ev));
     }
