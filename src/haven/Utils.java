@@ -1509,14 +1509,21 @@ public class Utils {
         Console.setscmd("gc", (cons, args) -> System.gc());
     }
 
-    // NOTE: following fmt*DecPlace methods will not work with values having large integer part
+    // NOTE: will not work with values having large integer part
     public static String fmt1DecPlace(double value) {
         double rvalue = (double) Math.round(value * 10) / 10;
         return (rvalue % 1 == 0) ? Integer.toString((int)rvalue) : Double.toString(rvalue);
     }
 
-    public static String fmt3DecPlace(double value) {
-        double rvalue = (double) Math.round(value * 1000) / 1000;
-        return (rvalue % 1 == 0) ? Integer.toString((int)rvalue) : Double.toString(rvalue);
+    public static Color hex2rgb(String clrhex) {
+        try {
+            return new Color(
+                    Integer.valueOf(clrhex.substring(0, 2), 16),
+                    Integer.valueOf(clrhex.substring(2, 4), 16),
+                    Integer.valueOf(clrhex.substring(4, 6), 16),
+                    255);
+        } catch (NumberFormatException e) {
+        }
+        return null;
     }
 }

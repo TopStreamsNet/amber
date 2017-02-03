@@ -160,6 +160,7 @@ public class Config {
     public static int zkey =  Utils.getprefi("zkey", KeyEvent.VK_Z);
     public static boolean disableterrainsmooth =  Utils.getprefb("disableterrainsmooth", false);
     public static boolean disableelev =  Utils.getprefb("disableelev", false);
+    public static String treeboxclr =  Utils.getpref("treeboxclr", "549394");
     private final static Map<String, Integer> defFontSzGlobal =  new HashMap<String, Integer>(3) {{
         put("zh", 16);
         put("en", 11);
@@ -269,7 +270,7 @@ public class Config {
         put("hazel", new CheckListboxItem("Hazel"));
         put("spruce", new CheckListboxItem("Spruce"));
         put("hornbeam", new CheckListboxItem("Hornbeam"));
-        put("oldtrunk", new CheckListboxItem("Oldtrunk"));
+        put("oldtrunk", new CheckListboxItem("Mirkwood Log"));
         put("conkertree", new CheckListboxItem("Conker Tree"));
         put("mulberry", new CheckListboxItem("Mulberry"));
         put("sweetgum", new CheckListboxItem("Sweetgum"));
@@ -280,7 +281,7 @@ public class Config {
         put("almondtree", new CheckListboxItem("Almond"));
     }};
 
-    public final static HashMap<String, CheckListboxItem> icons = new HashMap<String, CheckListboxItem>(26) {{
+    public final static HashMap<String, CheckListboxItem> icons = new HashMap<String, CheckListboxItem>(27) {{
         put("dandelion", new CheckListboxItem("Dandelion"));
         put("chantrelle", new CheckListboxItem("Chantrelle"));
         put("blueberry", new CheckListboxItem("Blueberry"));
@@ -308,6 +309,7 @@ public class Config {
         put("hedgehog", new CheckListboxItem("Hedgehog"));
         put("squirrel", new CheckListboxItem("Squirrel"));
         put("rabbit", new CheckListboxItem("Rabbit"));
+        put("lingon", new CheckListboxItem("Lingonberries"));
     }};
 
     public final static HashMap<String, CheckListboxItem> flowermenus = new HashMap<String, CheckListboxItem>(13) {{

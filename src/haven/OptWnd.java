@@ -27,10 +27,13 @@
 package haven;
 
 
+import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.*;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -1192,6 +1195,26 @@ public class OptWnd extends Window {
         //appender.addRow(new Label("Button font size (req. restart):"), makeFontSizeButtonDropdown());
         //appender.addRow(new Label("Window title font size (req. restart):"), makeFontSizeWndCapDropdown());
         appender.addRow(new Label("Chat font size (req. restart):"), makeFontSizeChatDropdown());
+
+        appender.addRow(new Label("Tree bounding box color (6-digit HEX):"),
+                new TextEntry(85, Config.treeboxclr) {
+                    @Override
+                    public boolean type(char c, KeyEvent ev) {
+                        if (!parent.visible)
+                            return false;
+
+                        boolean ret = buf.key(ev);
+                        if (text.length() == 6) {
+                            Color clr = Utils.hex2rgb(text);
+                            if (clr != null) {
+                                GobHitbox.fillclrstate = new States.ColState(clr);
+                                Utils.setpref("treeboxclr", text);
+                            }
+                        }
+                        return ret;
+                    }
+                }
+        );
 
         Button resetWndBtn = new Button(220, "Reset Windows (req. logout)") {
             @Override

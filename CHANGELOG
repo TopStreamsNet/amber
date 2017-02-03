@@ -1,3 +1,18 @@
+Version 1.53.0
+    New:
+        * Separate Placed and Natural lists in worldmap replaced by single filterable list.
+        * Holding Alt while right clicking things will prevent automatic menu selection if such is defined.
+        * Extension for automatically filleting all the fish in inventory.
+        * Option to change the color of tree bounding boxes.
+
+    Fixed:
+        * Auto-leveler bug (probably..)
+
+    Misc:
+        * Changed Oldrtunk to Mirkwood Log in trees list and added Lingonberies to icons list.
+        * Refactored auto-menu options - old settings were not preserved.
+
+
 Version 1.52.3
     Fixed:
         * Missing dead wolverine icon.

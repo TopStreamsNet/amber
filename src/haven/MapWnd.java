@@ -49,21 +49,18 @@ public class MapWnd extends Window {
     private final Locator player;
     private final Widget toolbar;
     private final Widget zoombar;
-    private final Frame viewf, listf;
-    private final Button pmbtn, smbtn;
+    private final Frame viewf, listf, fdropf;
+    private final Dropbox<Pair<String, String>> fdrop;
     private TextEntry namesel;
     private GroupSelector colsel;
     private Button mremove;
-    private Predicate<Marker> mflt = pmarkers;
     private Comparator<Marker> mcmp = namecmp;
     private List<Marker> markers = Collections.emptyList();
     private int markerseq = -1;
     private boolean domark = false;
     private final Collection<Runnable> deferred = new LinkedList<>();
     private static final Tex plx = Text.renderstroked("\u2716",  Color.red, Color.BLACK, LocalMiniMap.bld12fnd).tex();
-
-    private final static Predicate<Marker> pmarkers = (m -> m instanceof PMarker);
-    private final static Predicate<Marker> smarkers = (m -> m instanceof SMarker);
+    private  Predicate<Marker> filter = (m -> true);
     private final static Comparator<Marker> namecmp = ((a, b) -> a.nm.compareTo(b.nm));
 
 
@@ -96,20 +93,13 @@ public class MapWnd extends Window {
         }, Coord.z);
         toolbar.pack();
         zoombar = add(new ZoomBar());
+
+        fdrop = add(markersFilter());
+        fdropf = Frame.around(this, Collections.singletonList(fdrop));
+
         listf = add(new Frame(new Coord(200, 200), false));
         list = listf.add(new MarkerList(listf.inner().x, 0));
-        pmbtn = add(new Button(95, "Placed", false) {
-            public void click() {
-                mflt = pmarkers;
-                markerseq = -1;
-            }
-        });
-        smbtn = add(new Button(95, "Natural", false) {
-            public void click() {
-                mflt = smarkers;
-                markerseq = -1;
-            }
-        });
+
         resize(sz);
     }
 
@@ -233,7 +223,7 @@ public class MapWnd extends Window {
         if (visible && (markerseq != view.file.markerseq)) {
             if (view.file.lock.readLock().tryLock()) {
                 try {
-                    List<Marker> markers = view.file.markers.stream().filter(mflt).collect(java.util.stream.Collectors.toList());
+                    List<Marker> markers = view.file.markers.stream().filter(filter).collect(java.util.stream.Collectors.toList());
                     markers.sort(mcmp);
                     this.markers = markers;
                 } finally {
@@ -244,6 +234,63 @@ public class MapWnd extends Window {
     }
 
     public static final Color every = new Color(255, 255, 255, 16), other = new Color(255, 255, 255, 32);
+
+    private static final Pair[] filters = new Pair[] {
+            new Pair<>("-- All --", null),
+            new Pair<>("--- Custom ---", "flg"),
+            new Pair<>("Abyssal Chasm", "abyssalchasm"),
+            new Pair<>("Ancient Windthrow", "windthrow"),
+            new Pair<>("Clay Pit", "claypit"),
+            new Pair<>("Crystal Rock", "crystalpatch"),
+            new Pair<>("Geyser", "geyser"),
+            new Pair<>("Great Cave Organ", "caveorgan"),
+            new Pair<>("Guano Pile", "guanopile"),
+            new Pair<>("Headwaters", "headwaters"),
+            new Pair<>("Heart of the Woods", "woodheart"),
+            new Pair<>("Ice Spire", "icespire"),
+            new Pair<>("Jotun Mussel", "jotunmussel"),
+            new Pair<>("Quest Givers", "qst"),
+            new Pair<>("Salt Basin", "saltbasin"),
+    };
+
+    @SuppressWarnings("unchecked")
+    private Dropbox<Pair<String, String>> markersFilter() {
+        Dropbox<Pair<String, String>> modes = new Dropbox<Pair<String, String>>(200 - 10, filters.length, Math.max(Text.render(filters[0].a.toString()).sz().y, 16)) {
+            @Override
+            protected Pair<String, String> listitem(int i) {
+                return filters[i];
+            }
+
+            @Override
+            protected int listitems() {
+                return filters.length;
+            }
+
+            @Override
+            protected void drawitem(GOut g, Pair<String, String> item, int i) {
+                g.text(item.a, Dropbox.itemtextc);
+            }
+
+            @Override
+            public void change(Pair<String, String> item) {
+                super.change(item);
+                if (item.b == null)
+                    filter = (m -> true);
+                else if (item.b.equals("flg"))
+                    filter = (m -> m instanceof PMarker);
+                else if (item.b.equals("qst"))
+                    filter = (m -> m instanceof SMarker && ((SMarker)m).res.name.startsWith("gfx/invobjs/small"));
+                else
+                    filter = (m -> m instanceof SMarker && ((SMarker)m).res.name.endsWith(item.b));
+                markerseq = -1;
+                // reset scrollbar
+                if (list != null)
+                    list.sb.val = list.sb.min;
+            }
+        };
+        modes.change(filters[0]);
+        return modes;
+    }
 
     public class MarkerList extends Listbox<Marker> {
         private final Text.Foundry fnd = CharWnd.attrf;
@@ -337,11 +384,14 @@ public class MapWnd extends Window {
 
     public void resize(Coord sz) {
         super.resize(sz);
+
+        fdropf.c = new Coord(sz.x - 200, 0);
+        fdrop.c = new Coord(fdropf.c.x + 5, fdropf.c.y + 5);
+
         listf.resize(listf.sz.x, sz.y - 120);
-        listf.c = new Coord(sz.x - listf.sz.x, 0);
+        listf.c = new Coord(sz.x - listf.sz.x, fdropf.sz.y);
         list.resize(listf.inner());
-        pmbtn.c = new Coord(sz.x - 200, sz.y - pmbtn.sz.y);
-        smbtn.c = new Coord(sz.x - 95, sz.y - smbtn.sz.y);
+
         if (namesel != null) {
             namesel.c = listf.c.add(0, listf.sz.y + 10);
             if (colsel != null) {

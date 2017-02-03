@@ -159,7 +159,17 @@ public class Pathfinder implements Runnable {
             }
 
             // wait for it to finish
-            while (player.isMoving() && !moveinterupted && !terminate) {
+            while (!moveinterupted && !terminate) {
+                if (!player.isMoving()) {
+                    try {
+                        Thread.sleep(150);
+                    } catch (InterruptedException e1) {
+                        return;
+                    }
+                    if (!player.isMoving())
+                        break;
+                }
+
                 try {
                     Thread.sleep(200);
                 } catch (InterruptedException e1) {
