@@ -73,6 +73,7 @@ public class LocalMiniMap extends Widget {
     };
     private final static Tex bushicn = Text.renderstroked("\u22C6", Color.CYAN, Color.BLACK, bld12fnd).tex();
     private final static Tex treeicn = Text.renderstroked("\u25B2", Color.CYAN, Color.BLACK, bld12fnd).tex();
+    private final static Tex bldricn = Text.renderstroked("\u25AA", Color.CYAN, Color.BLACK, bld12fnd).tex();
     private Map<Color, Tex> xmap = new HashMap<Color, Tex>(6);
     public static Coord plcrel = null;
     public long lastnewgid;
@@ -189,39 +190,28 @@ public class LocalMiniMap extends Widget {
 
                         CheckListboxItem itm = Config.icons.get(res.basename());
                         if (itm == null || !itm.selected) {
-                            Coord gc = p2c(gob.rc);
                             Tex tex;
-                            if (icon != null && gob.knocked != Boolean.TRUE) {
-                                tex = icon.tex();
-                            } else {
-                                Tex addtex = Config.additonalicons.get(res.name);
-                                tex = addtex != null ? addtex : icon.tex();
-                            }
-                            g.image(tex, gc.sub(tex.sz().div(2)).add(delta));
+                            if (icon != null)
+                                tex = gob.knocked == Boolean.TRUE ? icon.texgrey() : icon.tex();
+                            else
+                                tex = Config.additonalicons.get(res.name);
+                            g.image(tex, p2c(gob.rc).sub(tex.sz().div(2)).add(delta));
                         }
                     }
 
                     String basename = res.basename();
                     if (res.name.startsWith("gfx/terobjs/bumlings")) {
                         CheckListboxItem itm = Config.boulders.get(basename.substring(0, basename.length() - 1));
-                        if (itm != null && itm.selected) {
-                            Coord pc = p2c(gob.rc).add(delta).sub(3, 3);
-                            g.chcolor(Color.BLACK);
-                            g.frect(pc, new Coord(6, 6));
-                            g.chcolor(Color.CYAN);
-                            g.frect(pc.add(1, 1), new Coord(4, 4));
-                            g.chcolor();
-                        }
+                        if (itm != null && itm.selected)
+                            g.image(bldricn, p2c(gob.rc).add(delta).sub(bldricn.sz().div(2)));
                     } else if (res.name.startsWith("gfx/terobjs/bushes")) {
                         CheckListboxItem itm = Config.bushes.get(basename);
-                        if (itm != null && itm.selected) {
+                        if (itm != null && itm.selected)
                             g.image(bushicn, p2c(gob.rc).add(delta).sub(bushicn.sz().div(2)));
-                        }
                     } else if (res.name.startsWith("gfx/terobjs/trees")) {
                         CheckListboxItem itm = Config.trees.get(basename);
-                        if (itm != null && itm.selected) {
+                        if (itm != null && itm.selected)
                             g.image(treeicn, p2c(gob.rc).add(delta).sub(treeicn.sz().div(2)));
-                        }
                     }
                 } catch (Loading l) {
                 }
@@ -231,15 +221,12 @@ public class LocalMiniMap extends Widget {
                 try {
                     GobIcon icon = gob.getattr(GobIcon.class);
                     if (icon != null) {
-                        Coord gc = p2c(gob.rc);
                         Tex tex;
-                        if (gob.knocked != Boolean.TRUE) {
-                            tex = icon.tex();
-                        } else {
-                            Resource res = gob.getres();
-                            tex = res == null ? icon.tex() : Config.additonalicons.get(res.name);
-                        }
-                        g.image(tex, gc.sub(tex.sz().div(2)).add(delta));
+                        if (icon != null)
+                            tex = gob.knocked == Boolean.TRUE ? icon.texgrey() : icon.tex();
+                        else
+                            tex = Config.additonalicons.get(gob.getres().name);
+                        g.image(tex, p2c(gob.rc).sub(tex.sz().div(2)).add(delta));
                     }
                 } catch (Loading l) {
                 }
