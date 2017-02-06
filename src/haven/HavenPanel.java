@@ -26,7 +26,7 @@
 
 package haven;
 
-import com.jogamp.opengl.util.awt.Screenshot;
+//FIXME:JOGL import com.jogamp.opengl.util.awt.Screenshot;
 
 import java.awt.GraphicsConfiguration;
 import java.awt.Color;
@@ -37,8 +37,8 @@ import java.awt.event.*;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import javax.media.opengl.*;
-import javax.media.opengl.awt.*;
+import com.jogamp.opengl.*;
+import com.jogamp.opengl.awt.*;
 
 public class HavenPanel extends GLCanvas implements Runnable, Console.Directory {
     UI ui;
@@ -79,7 +79,7 @@ public class HavenPanel extends GLCanvas implements Runnable, Console.Directory 
     }
 
     public HavenPanel(int w, int h, GLCapabilitiesChooser cc) {
-        super(stdcaps(), cc, null, null);
+        super(stdcaps(), cc, null);
         setSize(this.w = w, this.h = h);
         newui(null);
         initgl();
@@ -103,7 +103,7 @@ public class HavenPanel extends GLCanvas implements Runnable, Console.Directory 
                     String curtimestamp = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss.SSS").format(new Date());
                     File outputfile = new File(String.format("screenshots/%s.png", curtimestamp));
                     outputfile.getParentFile().mkdirs();
-                    Screenshot.writeToFile(outputfile, width, height);
+                    //FIXME:JOGL Screenshot.writeToFile(outputfile, width, height);
                     ui.root.findchild(GameUI.class).msg(String.format("Screenshot has been saved as \"%s\"", outputfile.getName()), Color.WHITE);
                 } catch (Exception ex) {
                     System.out.println("Unable to take screenshot: " + ex.getMessage());
@@ -112,7 +112,7 @@ public class HavenPanel extends GLCanvas implements Runnable, Console.Directory 
 
             public void display(GLAutoDrawable d) {
                 if (HavenPanel.needtotakescreenshot) {
-                    takescreenshot(d.getWidth(), d.getHeight());
+                    //FIXME:JOGL takescreenshot(d.getWidth(), d.getHeight());
                     HavenPanel.needtotakescreenshot = false;
                 }
 
