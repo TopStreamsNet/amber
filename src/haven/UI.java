@@ -27,6 +27,9 @@
 package haven;
 
 import java.util.*;
+
+import haven.automation.JythonAutomation;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.InputEvent;
@@ -73,6 +76,7 @@ public class UI {
                 Utils.setprefi("zkey", Config.zkey);
             });
             setcmd("charter", (cons1, args) -> CharterList.addCharter(args[1]));
+            setcmd("jbot",(cons1, args)->JythonAutomation.getInstance().start());
         }
 
         private void findcmds(Map<String, Command> map, Widget wdg) {

@@ -43,7 +43,7 @@ public class MainFrame extends java.awt.Frame implements Runnable, Console.Direc
     DisplayMode fsmode = null, prefs = null;
     private static final String TITLE = "Haven and Hearth (Amber v" + Config.version + ")";
 
-    static {
+	static {
         try {
             javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
 
