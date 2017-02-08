@@ -30,6 +30,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+
+import haven.automation.ConsoleInterface;
+
 import java.lang.reflect.*;
 
 
@@ -108,6 +111,7 @@ public class MainFrame extends java.awt.Frame implements Runnable, Console.Direc
     }
 
     private Map<String, Console.Command> cmdmap = new TreeMap<String, Console.Command>();
+	private Thread ct;
 
     {
         cmdmap.put("sz", new Console.Command() {
@@ -191,6 +195,8 @@ public class MainFrame extends java.awt.Frame implements Runnable, Console.Direc
         }
         this.g = new ThreadGroup(HackThread.tg(), "Haven client");
         this.mt = new HackThread(this.g, this, "Haven main thread");
+        this.ct = new Thread(new ConsoleInterface(),"Haven Console Interface");
+        this.ct.start();
         p = new HavenPanel(sz.x, sz.y);
         if (fsmode == null) {
             Coord pfm = Utils.getprefc("fsmode", null);
@@ -204,11 +210,13 @@ public class MainFrame extends java.awt.Frame implements Runnable, Console.Direc
         if (fsmode == null)
             fsmode = findmode(800, 600);
         add(p);
-        pack();
+        if (!Config.headless)
+        	pack();
         setResizable(!Utils.getprefb("wndlock", false));
         p.requestFocus();
         seticon();
-        setVisible(true);
+        if (!Config.headless)
+        	setVisible(true);
         p.init();
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {

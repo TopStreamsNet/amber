@@ -521,8 +521,13 @@ public class HavenPanel extends GLCanvas implements Runnable, Console.Directory 
         public void run() {
             try {
                 uglyjoglhack();
-                if (state == null)
-                    throw (new RuntimeException("State applier is still null after redraw"));
+                if (state == null){
+                	if(!Config.headless)
+                      throw (new RuntimeException("State applier is still null after redraw"));
+                	else
+                	  System.out.println("State applier is still null after redraw");
+                	
+                }
                 synchronized (drawfun) {
                     drawfun.notifyAll();
                 }

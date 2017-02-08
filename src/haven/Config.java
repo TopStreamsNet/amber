@@ -190,6 +190,7 @@ public class Config {
 
     public final static String chatfile = "chatlog.txt";
     public static PrintWriter chatlog = null;
+	public static boolean headless = false;
 
     public final static HashMap<String, CheckListboxItem> boulders = new HashMap<String, CheckListboxItem>(13) {{
         put("basalt", new CheckListboxItem("Basalt"));
@@ -505,7 +506,7 @@ public class Config {
     }
 
     public static void cmdline(String[] args) {
-        PosixArgs opt = PosixArgs.getopt(args, "hdPGp:U:r:A:u:C:");
+        PosixArgs opt = PosixArgs.getopt(args, "hdPGp:U:r:A:u:C:l:");
         if (opt == null) {
             usage(System.err);
             System.exit(1);
@@ -551,6 +552,10 @@ public class Config {
                 case 'p':
                     playerposfile = opt.arg;
                     break;
+                case 'l':
+                	headless = true;
+                	System.out.println("Running Headless - enjoy!");
+                	break;
             }
         }
         if (opt.rest.length > 0) {
