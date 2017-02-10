@@ -1,0 +1,41 @@
+import haven.Window as Window
+import haven.Coord as Coord
+import haven.HavenPanel as HavenPanel
+import haven.GameUI as GameUI
+import haven.Button as Button
+import haven.Label as Label
+
+from time import sleep
+
+class ButcherBot(Window):
+    lbl_corpse = None
+    lbl_hides = None
+    def __init__(self, coord, title):
+        Window.__init__(self, coord, title)
+
+        self.add(Label("Corpses selected: "), Coord(15, 60))
+        self.lbl_corpse = Label("0")
+        self.add(self.lbl_corpse, Coord(110,60))
+
+        self.add(Label("Hide piles selected: "), Coord(15, 75))
+        self.lbl_hides = Label("0")
+        self.add(self.lbl_hides, Coord(110,75))
+
+        startbtn = type("ButcherRunButton", (Button, object),{
+            "click": lambda self : {self.gameui().error("test")}
+        })
+        self.add(startbtn, Coord(65, 140))
+
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.destroy()
+
+# Our Automation window
+with ButcherBot(Coord(270,180),"Butcher Bot") as butcher:
+    gui = HavenPanel.lui.root.getchild(GameUI)
+    gui.add(butcher,Coord(gui.sz.x / 2 - butcher.sz.x / 2, gui.sz.y / 2 - butcher.sz.y / 2 - 200))
+    sleep(10)
+

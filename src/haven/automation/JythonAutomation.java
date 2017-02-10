@@ -34,7 +34,7 @@ public class JythonAutomation implements Runnable {
 		try {
 			FileInputStream fis = new FileInputStream(new File("jbot/"+this.botname));
 			interp.execfile(fis);
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			HavenPanel.lui.cons.out.println("Something went wrong!");
 			e.printStackTrace();
 		}
