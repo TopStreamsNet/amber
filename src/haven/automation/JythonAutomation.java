@@ -7,6 +7,10 @@ import haven.HavenPanel;
 import org.python.core.*;
 
 import java.awt.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 
 public class JythonAutomation implements Runnable {
 	private String botname = "";
@@ -27,14 +31,19 @@ public class JythonAutomation implements Runnable {
 		// TODO Auto-generated method stub
 		HavenPanel.lui.cons.out.println("--Running Jython Automation: "+this.botname+"--");
 		PythonInterpreter interp = new PythonInterpreter();
-		interp.execfile(this.botname);
+		try {
+			FileInputStream fis = new FileInputStream(new File("jbot/"+this.botname));
+			interp.execfile(fis);
+		} catch (FileNotFoundException e) {
+			HavenPanel.lui.cons.out.println("Something went wrong!");
+			e.printStackTrace();
+		}
 		HavenPanel.lui.cons.out.println("--/Running Jython Automation--");
 		
 
 	}
 
 	public void start(String[] args) {
-		HavenPanel.lui.cons.out.println("Args: "+args+" "+args[1]);
 		this.botname = args[1];
 		Thread jt = new Thread(JythonAutomation.getInstance(),"JBot thread");
 		jt.start();
