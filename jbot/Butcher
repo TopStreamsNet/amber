@@ -4,38 +4,86 @@ import haven.HavenPanel as HavenPanel
 import haven.GameUI as GameUI
 import haven.Button as Button
 import haven.Label as Label
+import haven.FlowerMenu as FlowerMenu
+import haven.automation.GobSelectCallback as GobSelectCallback
+import haven.automation.JythonAutomation as JythonAutomation
+
 
 from time import sleep
 
-class ButcherBot(Window):
-    lbl_corpse = None
+class ButcherButton(Button):
+	def __init__(self, width, caption):
+		Button.__init__(self, width, caption)
+	def click(self):
+		HavenPanel.lui.cons.out.println("Butchering!")
+		JythonAutomation.getInstance().setTerminate(True)
+		
+class ClearButton(Button):
+	def __init__(self, width, caption):
+		Button.__init__(self, width, caption)
+	def click(self):
+		HavenPanel.lui.cons.out.println("All Cleared!")
+		self.parent.bodies=[]
+		self.parent.lbl_bodies.settext("0")
+
+			
+class ButcherBot(GobSelectCallback, Window):
+    lbl_bodies = None
     lbl_hides = None
+    
+    bodies = []
+            
     def __init__(self, coord, title):
         Window.__init__(self, coord, title)
 
-        self.add(Label("Corpses selected: "), Coord(15, 60))
-        self.lbl_corpse = Label("0")
-        self.add(self.lbl_corpse, Coord(110,60))
+        self.add(Label("bodies selected: "), Coord(15, 60))
+        self.lbl_bodies = Label("0")
+        self.add(self.lbl_bodies, Coord(110,60))
 
         self.add(Label("Hide piles selected: "), Coord(15, 75))
         self.lbl_hides = Label("0")
         self.add(self.lbl_hides, Coord(110,75))
 
-        startbtn = type("ButcherRunButton", (Button, object),{
-            "click": lambda self : {self.gameui().error("test")}
-        })
-        self.add(startbtn, Coord(65, 140))
-
+        butchertbtn = ButcherButton(70, "Butcher!")
+        self.add(butchertbtn, Coord(65, 140))
+        
+        clearbtn = ClearButton(70, "Clear")
+        self.add(clearbtn, Coord(140, 140))
+        
+    def gobselect(self, gob):
+    	res = gob.getres()
+    	if(res != None):
+    		HavenPanel.lui.cons.out.println("gob selected: {0}".format(res.name))
+    		if(res.name.startswith("gfx/kritter")):
+    			self.bodies.append(gob)
+    			self.lbl_bodies.settext("{0}".format(len(self.bodies)))
+    			
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+    	HavenPanel.lui.root.getchild(GameUI).map.unregisterGobSelect()
         self.destroy()
 
 # Our Automation window
 with ButcherBot(Coord(270,180),"Butcher Bot") as butcher:
     gui = HavenPanel.lui.root.getchild(GameUI)
     gui.add(butcher,Coord(gui.sz.x / 2 - butcher.sz.x / 2, gui.sz.y / 2 - butcher.sz.y / 2 - 200))
-    sleep(10)
-
+    HavenPanel.lui.root.getchild(GameUI).map.registerGobSelect(butcher)
+    while(JythonAutomation.getInstance().getTerminate() != True):
+    	sleep(10)
+    for gob in butcher.bodies:
+		HavenPanel.lui.cons.out.println(gob)
+		HavenPanel.lui.root.getchild(GameUI).map.pfRightClick(gob, -1, 3, 0, None)
+		while HavenPanel.lui.root.getchild(FlowerMenu) == None:
+			HavenPanel.lui.cons.out.println("Waiting for flowers!")
+			sleep(1)
+		flowermenu = HavenPanel.lui.root.getchild(FlowerMenu);
+		for i in range(len(flowermenu.opts)):
+			HavenPanel.lui.cons.out.println("{0} {1}".format(i,flowermenu.opts[i]))
+			if flowermenu.opts[i].name == "Skin":
+				HavenPanel.lui.cons.out.println("FOUND")
+				flowermenu.uimsg("act",flowermenu.opts[i].num)
+				sleep(10)
+				break

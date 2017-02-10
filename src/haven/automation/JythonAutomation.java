@@ -2,6 +2,7 @@ package haven.automation;
 
 import org.python.util.PythonInterpreter;
 
+import haven.GameUI;
 import haven.HavenPanel;
 
 import org.python.core.*;
@@ -14,6 +15,15 @@ import java.io.FileNotFoundException;
 
 public class JythonAutomation implements Runnable {
 	private String botname = "";
+	private Boolean terminate = false;
+
+	public Boolean getTerminate() {
+		return terminate;
+	}
+
+	public void setTerminate(Boolean terminate) {
+		this.terminate = terminate;
+	}
 
 	public static class JythonAutomationHolder {
 		public static final JythonAutomation HOLDER_INSTANCE = new JythonAutomation();
@@ -36,9 +46,10 @@ public class JythonAutomation implements Runnable {
 			interp.execfile(fis);
 		} catch (Exception e) {
 			HavenPanel.lui.cons.out.println("Something went wrong!");
-			e.printStackTrace();
+			e.printStackTrace(HavenPanel.lui.cons.out);
 		}
 		HavenPanel.lui.cons.out.println("--/Running Jython Automation--");
+		this.terminate=false;
 		
 
 	}
