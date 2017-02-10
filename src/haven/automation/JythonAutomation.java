@@ -6,7 +6,11 @@ import haven.HavenPanel;
 
 import org.python.core.*;
 
+import java.awt.*;
+
 public class JythonAutomation implements Runnable {
+	private String botname = "";
+
 	public static class JythonAutomationHolder {
 		public static final JythonAutomation HOLDER_INSTANCE = new JythonAutomation();
 	}
@@ -21,17 +25,17 @@ public class JythonAutomation implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		System.out.println("--Running Jython Automation--");
+		HavenPanel.lui.cons.out.println("--Running Jython Automation: "+this.botname+"--");
 		PythonInterpreter interp = new PythonInterpreter();
-		interp.exec("import haven.MainFrame as MainFrame");
-		interp.exec("print 123");
-		System.out.println("--/Running Jython Automation--");
+		interp.execfile(this.botname);
+		HavenPanel.lui.cons.out.println("--/Running Jython Automation--");
 		
 
 	}
 
-	public void start() {
-		// TODO Auto-generated method stub
+	public void start(String[] args) {
+		HavenPanel.lui.cons.out.println("Args: "+args+" "+args[1]);
+		this.botname = args[1];
 		Thread jt = new Thread(JythonAutomation.getInstance(),"JBot thread");
 		jt.start();
 	}

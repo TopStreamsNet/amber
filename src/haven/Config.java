@@ -26,14 +26,17 @@
 
 package haven;
 
+import haven.automation.JythonAutomation;
 import haven.error.ErrorHandler;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
+import java.util.List;
 
 import static haven.Utils.getprop;
 
@@ -581,6 +584,9 @@ public class Config {
             } else if (args[1].equals("all")) {
                 profile = profilegpu = true;
             }
+        });
+        Console.setscmd("jbot", (cons, args) -> {
+            JythonAutomation.getInstance().start(args);
         });
     }
 }
