@@ -79,7 +79,7 @@
 		</jar>
 	</target>
 
-	<target name="jars" depends="build-env, jar, res-jar, l10n-jar">
+	<target name="jars" depends="build-env, jar, res-jar, l10n-jar, custom_res">
 		<copy todir="build">
 			<fileset dir="lib">
 				<include name="jogl.jar" />
@@ -118,7 +118,11 @@
 		<delete dir="build" />
 	</target>
 
-	<target name="rebuild" depends="clean, jars">
+	<target name="rebuild" depends="clean, jars, custom_res">
+
+	</target>
+
+	<target name="custom_res">
 		<copy todir="build/res">
 			<fileset dir="custom_res/" />
 		</copy>
