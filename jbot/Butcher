@@ -5,6 +5,8 @@ import haven.GameUI as GameUI
 import haven.Button as Button
 import haven.Label as Label
 import haven.FlowerMenu as FlowerMenu
+import haven.OCache as OCache
+import haven.automation.Utils as Utils
 import haven.automation.GobSelectCallback as GobSelectCallback
 import haven.automation.JythonAutomation as JythonAutomation
 
@@ -12,37 +14,56 @@ import haven.automation.JythonAutomation as JythonAutomation
 from time import sleep
 
 class ButcherButton(Button):
-	def __init__(self, width, caption):
-		Button.__init__(self, width, caption)
-	def click(self):
-		HavenPanel.lui.cons.out.println("Butchering!")
-		JythonAutomation.getInstance().setTerminate(True)
+    def __init__(self, width, caption):
+        Button.__init__(self, width, caption)
+    def click(self):
+        HavenPanel.lui.cons.out.println("Butchering!")
+        JythonAutomation.getInstance().setTerminate(True)
 		
 class ClearButton(Button):
-	def __init__(self, width, caption):
-		Button.__init__(self, width, caption)
-	def click(self):
-		HavenPanel.lui.cons.out.println("All Cleared!")
-		self.parent.bodies=[]
-		self.parent.lbl_bodies.settext("0")
+    def __init__(self, width, caption):
+        Button.__init__(self, width, caption)
+    def click(self):
+        HavenPanel.lui.cons.out.println("All Cleared!")
+        self.parent.bodies=[]
+        self.parent.lbl_bodies.settext("0")
+        self.parent.hidepiles=[]
+        self.parent.lbl_hidepiles.settext("0")
+        self.parent.trashpiles=[]
+        self.parent.lbl_trashpiles.settext("0")
+        self.parent.cupboards=[]
+        self.parent.lbl_cupboards.settext("0")
 
 			
 class ButcherBot(GobSelectCallback, Window):
     lbl_bodies = None
-    lbl_hides = None
+    lbl_hidepiles = None
+    lbl_trashpiles = None
+    lbl_cupboards = None
     
     bodies = []
+    hidepiles = []
+    trashpiles = []
+    cupboards = []
             
     def __init__(self, coord, title):
         Window.__init__(self, coord, title)
 
-        self.add(Label("bodies selected: "), Coord(15, 60))
+        self.add(Label("Bodies selected: "), Coord(15, 15))
         self.lbl_bodies = Label("0")
-        self.add(self.lbl_bodies, Coord(110,60))
+        self.add(self.lbl_bodies, Coord(120,15))
 
-        self.add(Label("Hide piles selected: "), Coord(15, 75))
-        self.lbl_hides = Label("0")
-        self.add(self.lbl_hides, Coord(110,75))
+        self.add(Label("Hide piles selected: "), Coord(15, 30))
+        self.lbl_hidepiles = Label("0")
+        self.add(self.lbl_hidepiles, Coord(120,30))
+
+        self.add(Label("Trash piles selected: "), Coord(15, 45))
+        self.lbl_trashpiles = Label("0")
+        self.add(self.lbl_trashpiles, Coord(120,45))
+
+        self.add(Label("Cupboards selected: "), Coord(15, 60))
+        self.lbl_cupboards = Label("0")
+        self.add(self.lbl_cupboards, Coord(120,60))
 
         butchertbtn = ButcherButton(70, "Butcher!")
         self.add(butchertbtn, Coord(65, 140))
@@ -51,39 +72,150 @@ class ButcherBot(GobSelectCallback, Window):
         self.add(clearbtn, Coord(140, 140))
         
     def gobselect(self, gob):
-    	res = gob.getres()
-    	if(res != None):
-    		HavenPanel.lui.cons.out.println("gob selected: {0}".format(res.name))
-    		if(res.name.startswith("gfx/kritter")):
-    			self.bodies.append(gob)
-    			self.lbl_bodies.settext("{0}".format(len(self.bodies)))
+        res = gob.getres()
+        if(res != None):
+            HavenPanel.lui.cons.out.println("gob selected: {0}".format(res.name))
+            if(res.name.startswith("gfx/kritter")):
+                self.bodies.append(gob)
+                self.lbl_bodies.settext("{0}".format(len(self.bodies)))
+            elif(res.name.startswith("gfx/terobjs/stockpile-hide")):
+                self.hidepiles.append(gob)
+                self.lbl_hidepiles.settext("{0}".format(len(self.hidepiles)))
+            elif(res.name.startswith("gfx/terobjs/stockpile-trash")):
+                self.trashpiles.append(gob)
+                self.lbl_trashpiles.settext("{0}".format(len(self.trashpiles)))
+            elif(res.name.startswith("gfx/terobjs/cupboard")):
+                self.cupboards.append(gob)
+                self.lbl_cupboards.settext("{0}".format(len(self.cupboards)))
     			
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-    	HavenPanel.lui.root.getchild(GameUI).map.unregisterGobSelect()
+        HavenPanel.lui.root.getchild(GameUI).map.unregisterGobSelect()
         self.destroy()
 
-# Our Automation window
+# Our Automation
 with ButcherBot(Coord(270,180),"Butcher Bot") as butcher:
     gui = HavenPanel.lui.root.getchild(GameUI)
     gui.add(butcher,Coord(gui.sz.x / 2 - butcher.sz.x / 2, gui.sz.y / 2 - butcher.sz.y / 2 - 200))
     HavenPanel.lui.root.getchild(GameUI).map.registerGobSelect(butcher)
     while(JythonAutomation.getInstance().getTerminate() != True):
-    	sleep(10)
-    for gob in butcher.bodies:
-		HavenPanel.lui.cons.out.println(gob)
-		HavenPanel.lui.root.getchild(GameUI).map.pfRightClick(gob, -1, 3, 0, None)
-		while HavenPanel.lui.root.getchild(FlowerMenu) == None:
-			HavenPanel.lui.cons.out.println("Waiting for flowers!")
-			sleep(1)
-		flowermenu = HavenPanel.lui.root.getchild(FlowerMenu);
-		for i in range(len(flowermenu.opts)):
-			HavenPanel.lui.cons.out.println("{0} {1}".format(i,flowermenu.opts[i]))
-			if flowermenu.opts[i].name == "Skin":
-				HavenPanel.lui.cons.out.println("FOUND")
-				flowermenu.uimsg("act",flowermenu.opts[i].num)
-				sleep(10)
-				break
+        sleep(1)
+
+    # For every configured body
+    for body in butcher.bodies:
+        HavenPanel.lui.cons.out.println("Working on body: {0}".format(body))
+        # RightClick the body and see what comes out
+        HavenPanel.lui.root.getchild(GameUI).map.pfRightClick(body, -1, 3, 0, None)
+        HavenPanel.lui.root.getchild(GameUI).map.pfthread.join()
+        # Wait for choices
+        while HavenPanel.lui.root.getchild(FlowerMenu) == None:
+            HavenPanel.lui.cons.out.println("Waiting for flowers!")
+            sleep(1)
+        flowermenu = HavenPanel.lui.root.getchild(FlowerMenu)
+        for i in range(len(flowermenu.opts)):
+            HavenPanel.lui.cons.out.println("{0} {1}".format(i,flowermenu.opts[i]))
+            if flowermenu.opts[i].name == "Skin":
+                HavenPanel.lui.cons.out.println("Going to Skin {0}".format(body))
+                flowermenu.choose(flowermenu.opts[i])
+                sleep(10)
+                # Check skins in inventory
+                hide_num = gui.maininv.getItemPartialCount("hide")
+                hide_num = hide_num + gui.maininv.getItemPartialCount("Hide")
+                while (hide_num >= 4):
+                    HavenPanel.lui.cons.out.println("Have hides {0}".format(hide_num))
+                    for pile in butcher.hidepiles:
+                        HavenPanel.lui.root.getchild(GameUI).map.pfRightClick(pile, -1, 3, 0, None)
+                        HavenPanel.lui.root.getchild(GameUI).map.pfthread.join()
+                        spwnd = gui.waitfForWnd("Stockpile", 1500);
+                        if spwnd == None:
+                            continue
+                        hide = gui.maininv.getItemPartial("hide")
+                        if (hide == None):
+                            hide = gui.maininv.getItemPartial("Hide");
+                        if (hide == None):
+                            break
+                        hide.item.wdgmsg("take", Coord(hide.item.sz.x / 2, hide.item.sz.y / 2));
+                        while(gui.hand.isEmpty()):
+                            HavenPanel.lui.cons.out.println("Waiting for hide in hand!")
+                            sleep(1)
+                        gui.map.wdgmsg("itemact", Coord.z, pile.rc.floor(OCache.posres), hide_num, 0, int(pile.id), pile.rc.floor(OCache.posres), 0, -1)
+                        while(not(gui.hand.isEmpty())):
+                            HavenPanel.lui.cons.out.println("Waiting for EMPTY hand!")
+                            sleep(1)
+                        hide_num = gui.maininv.getItemPartialCount("hide")
+                        hide_num = hide_num + gui.maininv.getItemPartialCount("Hide")
+                        if(hide_num == 0):
+                            break
+
+            elif flowermenu.opts[i].name == "Butcher":
+                HavenPanel.lui.cons.out.println("Going to Butcher {0}".format(body))
+                flowermenu.choose(flowermenu.opts[i])
+                Utils.waitForProgressFinish(gui,60000,"Stuck in Butchering")
+                HavenPanel.lui.cons.out.println("Done Butchering {0}".format(body))
+                # Check Intestines
+                intestines_num = gui.maininv.getItemPartialCount("Intestines")
+                while (intestines_num >=3):
+                    HavenPanel.lui.cons.out.println("Have Intestines {0}".format(intestines_num))
+                    for pile in butcher.trashpiles:
+                        HavenPanel.lui.root.getchild(GameUI).map.pfRightClick(pile, -1, 3, 0, None)
+                        HavenPanel.lui.root.getchild(GameUI).map.pfthread.join()
+                        spwnd = gui.waitfForWnd("Stockpile", 1500);
+                        if spwnd == None:
+                            continue
+                        intestines = gui.maininv.getItemPartial("Intestines")
+                        if (intestines == None):
+                            break
+                        intestines.item.wdgmsg("take", Coord(intestines.item.sz.x / 2, intestines.item.sz.y / 2))
+                        while(gui.hand.isEmpty()):
+                            HavenPanel.lui.cons.out.println("Waiting for intestines in hand!")
+                            sleep(1)
+                        gui.map.wdgmsg("itemact", Coord.z, pile.rc.floor(OCache.posres), intestines_num, 0, int(pile.id), pile.rc.floor(OCache.posres), 0, -1)
+                        while(not(gui.hand.isEmpty())):
+                            HavenPanel.lui.cons.out.println("Waiting for EMPTY hand!")
+                            sleep(1)
+                        intestines_num = gui.maininv.getItemPartialCount("Intestines")
+                        if(intestines_num == 0):
+                            break
+                # Check Entrails
+                entrails_num = gui.maininv.getItemPartialCount("Entrails")
+                while (entrails_num >=3):
+                    HavenPanel.lui.cons.out.println("Have Entrails {0}".format(entrails_num))
+                    for pile in butcher.trashpiles:
+                        HavenPanel.lui.root.getchild(GameUI).map.pfRightClick(pile, -1, 3, 0, None)
+                        HavenPanel.lui.root.getchild(GameUI).map.pfthread.join()
+                        spwnd = gui.waitfForWnd("Stockpile", 1500);
+                        if spwnd == None:
+                            continue
+                        entrails = gui.maininv.getItemPartial("Entrails")
+                        if (entrails == None):
+                            break
+                        entrails.item.wdgmsg("take", Coord(entrails.item.sz.x / 2, entrails.item.sz.y / 2))
+                        while(gui.hand.isEmpty()):
+                            HavenPanel.lui.cons.out.println("Waiting for entrails in hand!")
+                            sleep(1)
+                        gui.map.wdgmsg("itemact", Coord.z, pile.rc.floor(OCache.posres), entrails_num, 0, int(pile.id), pile.rc.floor(OCache.posres), 0, -1)
+                        while(not(gui.hand.isEmpty())):
+                            HavenPanel.lui.cons.out.println("Waiting for EMPTY hand!")
+                            sleep(1)
+                        entrails_num = gui.maininv.getItemPartialCount("Intestines")
+                        if(entrails_num == 0):
+                            break
+                # Check for meat
+                meat_num = gui.maininv.getItemPartialCount("Raw")
+                while meat_num >= 3:
+                    HavenPanel.lui.cons.out.println("Have meat {0}".format(meat_num))
+                    for cupboard in butcher.cupboards:
+                        HavenPanel.lui.root.getchild(GameUI).map.pfRightClick(cupboard, -1, 3, 0, None)
+                        HavenPanel.lui.root.getchild(GameUI).map.pfthread.join()
+                        spwnd = gui.waitfForWnd("Cupboard", 1500);
+                        if spwnd == None:
+                            continue
+                        meat = gui.maininv.getItemPartial("Raw")
+                        meat.item.wdgmsg("transfer-identical", meat.item)
+                        sleep(1)
+                        meat_num = gui.maininv.getItemPartialCount("Raw")
+                        if meat_num == 0:
+                            break

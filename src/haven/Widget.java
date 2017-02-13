@@ -634,8 +634,13 @@ public class Widget {
     }
 
     public void wdgmsg(String msg, Object... args) {
-    	/*try{
-    	gameui().syslog.append(""+msg+" "+args,Color.CYAN);
+        /*
+    	try{
+    	HavenPanel.lui.cons.out.print("=>"+msg+" ");
+    	for (Object arg : args){
+            HavenPanel.lui.cons.out.print(":"+ arg);
+        }
+    	HavenPanel.lui.cons.out.println("");
     	} catch (Exception e){
     		
     	}*/
