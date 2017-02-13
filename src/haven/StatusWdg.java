@@ -46,7 +46,6 @@ public class StatusWdg extends Widget {
                 output += line;
             }
 
-            HavenPanel.lui.cons.out.println(""+output);
             Matcher matcher = pattern.matcher(output);
             while (matcher.find()) {
                 ping = matcher.group(1);
