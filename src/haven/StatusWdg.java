@@ -15,7 +15,7 @@ public class StatusWdg extends Widget {
     private Tex pingtime = pingtimedef;
     private long lastPingUpdate = System.currentTimeMillis();
     private final static Pattern pattern = Config.iswindows ?
-            Pattern.compile(".+?=32 .+?=(\\d+).*? TTL=.+") :    // Reply from 87.245.198.59: bytes=32 time=2ms TTL=53
+            Pattern.compile(".+ = \\d+.+?, .+ = \\d+.+?, .+ = (\\d+).+?") :    //     Minimum = 97ms, Maximum = 97ms, Average = 97ms
             Pattern.compile(".+?time=(\\d+\\.?\\d*) ms");       // 64 bytes from ansgar.seatribe.se (213.239.201.139): icmp_seq=1 ttl=47 time=71.4 ms
 
 
@@ -46,6 +46,7 @@ public class StatusWdg extends Widget {
                 output += line;
             }
 
+            HavenPanel.lui.cons.out.println(""+output);
             Matcher matcher = pattern.matcher(output);
             while (matcher.find()) {
                 ping = matcher.group(1);
