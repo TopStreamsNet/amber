@@ -67,7 +67,8 @@ public class FightWnd extends Widget {
             "paginae/atk/gojug",
             "paginae/atk/uppercut",
             "paginae/atk/punchboth",
-            "paginae/atk/stealthunder"
+            "paginae/atk/stealthunder",
+            "paginae/atk/ravenbite"
     ));
     private static final Set<String> restorations = new HashSet<>(Arrays.asList(
             "paginae/atk/regain",

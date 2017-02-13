@@ -1302,6 +1302,9 @@ public class GameUI extends ConsoleHost implements Console.Directory {
             cons.out.println("Available console commands:");
             cons.findcmds().forEach((s, cmd) -> cons.out.println(s));
         });
+        cmdmap.put("savemap", (cons, args) -> {
+            new Thread(() -> mapfile.view.dumpTiles(), "MapDumper").start();
+        });
     }
 
     public Map<String, Console.Command> findcmds() {

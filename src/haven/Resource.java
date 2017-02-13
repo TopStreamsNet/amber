@@ -1874,7 +1874,9 @@ public class Resource implements Serializable {
             "Will refill in %s hours",
             "Will refill in %s minutes",
             "Will refill in %s seconds",
-            "Will refill in %s second"
+            "Will refill in %s second",
+            "Quality: %s",
+            "%s%% grown"
     };
 
     public static String getLocString(String bundle, String key) {
@@ -1975,23 +1977,14 @@ public class Resource implements Serializable {
             if (key == null || key.equals("") || val.equals("") || map.containsKey(key))
                 return;
 
-            try {
-                Integer.parseInt(key);
+            if (val.charAt(0) >= '0' && val.charAt(0) <= '9')
                 return;
-            } catch (NumberFormatException nfe) {
-            }
-            try {
-                Integer.parseInt(val);
-                return;
-            } catch (NumberFormatException nfe) {
-            }
 
-            if (key.startsWith("Village shield:") || key.startsWith("Essence:") ||  // inspect tool
-                    key.endsWith("is ONLINE") || key.endsWith("is offline") ||      // kin online/offline
+            if (key.startsWith("Village shield:") ||
+                    key.endsWith("is ONLINE") || key.endsWith("is offline") ||
                     key.startsWith("Experience points gained:"))
                 return;
-
-
+            
             if (bundle == BUNDLE_LABEL) {
                 for (String s : fmtLocStringsLabel) {
                     if (fmtLocString(map, key, s) != null)

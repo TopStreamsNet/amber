@@ -28,9 +28,14 @@ package haven;
 
 import haven.MapFile.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static haven.MCache.cmaps;
 
@@ -284,6 +289,74 @@ public class MapFileWidget extends Widget {
                 mark.draw(g, hsz.sub(loc.tc).add(mark.m.tc.div(scalef())));
             }
         }
+    }
+
+    public void dumpTiles() {
+        gameui().msg("Dumping map. Please wait...");
+
+        Location loc = this.curloc;
+        if (loc == null)
+            return;
+
+        LinkedList<DisplayGrid> grids = new LinkedList<>();
+        if(file.lock.readLock().tryLock()) {
+            try {
+                for (Map.Entry<Coord, Long> entry: loc.seg.map.entrySet())
+                    grids.add(new DisplayGrid(loc.seg, entry.getKey(), loc.seg.grid(entry.getKey())));
+            } finally {
+                file.lock.readLock().unlock();
+            }
+        }
+
+        String session = (new SimpleDateFormat("yyyy-MM-dd HH.mm.ss")).format(new Date(System.currentTimeMillis()));
+        (new File("map/" + session)).mkdirs();
+
+        int c = 50;
+
+        BufferedWriter ids = null;
+        try {
+            ids = new BufferedWriter(new FileWriter(String.format("map/%s/ids.txt", session), true));
+
+            while (grids.size() > 0) {
+                // just a fail-safe
+                if (c-- == 0) {
+                    gameui().error("WARNING: map dumper timed out");
+                    break;
+                }
+
+                ListIterator<DisplayGrid> iter = grids.listIterator();
+                while (iter.hasNext()) {
+                    DisplayGrid disp = iter.next();
+                    try {
+                        Grid grid = disp.gref.get();
+                        if (grid != null) {
+                            BufferedImage img = grid.render(disp.sc.mul(cmaps));
+                            File tilefile = new File(String.format("map/%s/tile_%d_%d.png", session, disp.sc.x, disp.sc.y));
+                            ImageIO.write(img, "png", tilefile);
+                            ids.write(String.format("%d,%d,%d\n", disp.sc.x, disp.sc.y, grid.id));
+                        } else {
+                            continue;
+                        }
+                    } catch (Loading l) {
+                        continue;
+                    }
+                    iter.remove();
+                }
+            }
+        } catch (IOException e) {
+            gameui().error("ERROR: map dumper failure. See console for more info.");
+            e.printStackTrace();
+            return;
+        } finally {
+            if (ids != null) {
+                try {
+                    ids.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+
+        gameui().msg("Finished dumping map");
     }
 
     public void center(Locator loc) {

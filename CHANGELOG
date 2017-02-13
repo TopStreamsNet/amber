@@ -1,3 +1,27 @@
+Version 1.54.1
+    Fixed:
+        * Regression introduced in v1.54.0
+
+
+Version 1.54.0
+    New:
+        * Allow removing resource markers.
+        * Console command 'savemap' for dumping world map tiles.
+		* Highlight intermediate harvestable stages for carrots and hemp.
+		* Add option to disable dropping tubers in auto-leveler.
+
+    Fixed:
+        * Raven's Bite not being listed and Attacks filter.
+		* Map highlight settings (trees, icons. etc) not being cleared when switching chars.
+		* Black eye didn't list available cures.
+		* Water vortex missing from world map filters.
+		* Auto-leveler for people having high ping.
+		
+    Misc:
+		* Added grub to icons list
+		* Tweaked blue kin color.
+
+
 Version 1.53.0
     New:
         * Separate Placed and Natural lists in worldmap replaced by single filterable list.

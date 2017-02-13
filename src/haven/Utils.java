@@ -268,6 +268,8 @@ public class Utils {
             if (jsonstr == null)
                 return;
             JSONArray ja = new JSONArray(jsonstr);
+            for (CheckListboxItem itm : data.values())
+                itm.selected = false;
             for (int i = 0; i < ja.length(); i++) {
                 CheckListboxItem itm = data.get(ja.getString(i));
                 if (itm != null)

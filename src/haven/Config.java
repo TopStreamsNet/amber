@@ -285,7 +285,7 @@ public class Config {
         put("almondtree", new CheckListboxItem("Almond"));
     }};
 
-    public final static HashMap<String, CheckListboxItem> icons = new HashMap<String, CheckListboxItem>(27) {{
+    public final static HashMap<String, CheckListboxItem> icons = new HashMap<String, CheckListboxItem>(28) {{
         put("dandelion", new CheckListboxItem("Dandelion"));
         put("chantrelle", new CheckListboxItem("Chantrelle"));
         put("blueberry", new CheckListboxItem("Blueberry"));
@@ -314,6 +314,7 @@ public class Config {
         put("squirrel", new CheckListboxItem("Squirrel"));
         put("rabbit", new CheckListboxItem("Rabbit"));
         put("lingon", new CheckListboxItem("Lingonberries"));
+        put("grub", new CheckListboxItem("Grub"));
     }};
 
     public final static HashMap<String, CheckListboxItem> flowermenus = new HashMap<String, CheckListboxItem>(13) {{
@@ -352,10 +353,6 @@ public class Config {
         put("gfx/kritter/nidbane/nidbane", Resource.loadtex("gfx/icons/spooky"));
     }};
 
-    public final static Set<String> dangerousgobres = new HashSet<String>(Arrays.asList(
-            "gfx/kritter/bat/bat", "gfx/kritter/bear/bear", "gfx/kritter/boar/boar", "gfx/kritter/lynx/lynx", "gfx/kritter/walrus/walrus",
-            "gfx/kritter/badger/badger", "gfx/kritter/wolverine/wolverine"));
-
     public final static Set<String> foragables = new HashSet<String>(Arrays.asList(
             "gfx/terobjs/herbs/flotsam", "gfx/terobjs/herbs/chimingbluebell", "gfx/terobjs/herbs/edelweiss",
             "gfx/terobjs/herbs/bloatedbolete", "gfx/terobjs/herbs/glimmermoss"));
@@ -380,7 +377,7 @@ public class Config {
         put("/idle", new CheckListboxItem("Idle animals"));
     }};
 
-    public final static HashMap<String, String[]> cures = new HashMap<String, String[]>(14) {{
+    public final static HashMap<String, String[]> cures = new HashMap<String, String[]>(15) {{
         put("paginae/wound/antburn", new String[]{
                 "gfx/invobjs/herbs/yarrow"
         });
@@ -434,6 +431,9 @@ public class Config {
         });
         put("paginae/wound/wretchedgore", new String[]{
                 "gfx/invobjs/stitchpatch"
+        });
+        put("paginae/wound/blackeye", new String[]{
+                "gfx/invobjs/toadbutter"
         });
     }};
 
