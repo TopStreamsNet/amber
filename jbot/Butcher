@@ -143,7 +143,7 @@ with ButcherBot(Coord(270,180),"Butcher Bot") as butcher:
                         while(gui.hand.isEmpty()):
                             HavenPanel.lui.cons.out.println("Waiting for hide in hand!")
                             sleep(1)
-                        gui.map.wdgmsg("itemact", Coord.z, pile.rc.floor(OCache.posres), hide_num, 0, int(pile.id), pile.rc.floor(OCache.posres), 0, -1)
+                        gui.map.wdgmsg("itemact", Coord.z, pile.rc.floor(OCache.posres), 1, 0, int(pile.id), pile.rc.floor(OCache.posres), 0, -1)
                         while(not(gui.hand.isEmpty())):
                             HavenPanel.lui.cons.out.println("Waiting for EMPTY hand!")
                             sleep(1)
@@ -174,7 +174,7 @@ with ButcherBot(Coord(270,180),"Butcher Bot") as butcher:
                         while(gui.hand.isEmpty()):
                             HavenPanel.lui.cons.out.println("Waiting for intestines in hand!")
                             sleep(1)
-                        gui.map.wdgmsg("itemact", Coord.z, pile.rc.floor(OCache.posres), intestines_num, 0, int(pile.id), pile.rc.floor(OCache.posres), 0, -1)
+                        gui.map.wdgmsg("itemact", Coord.z, pile.rc.floor(OCache.posres), 1, 0, int(pile.id), pile.rc.floor(OCache.posres), 0, -1)
                         while(not(gui.hand.isEmpty())):
                             HavenPanel.lui.cons.out.println("Waiting for EMPTY hand!")
                             sleep(1)
@@ -198,7 +198,7 @@ with ButcherBot(Coord(270,180),"Butcher Bot") as butcher:
                         while(gui.hand.isEmpty()):
                             HavenPanel.lui.cons.out.println("Waiting for entrails in hand!")
                             sleep(1)
-                        gui.map.wdgmsg("itemact", Coord.z, pile.rc.floor(OCache.posres), entrails_num, 0, int(pile.id), pile.rc.floor(OCache.posres), 0, -1)
+                        gui.map.wdgmsg("itemact", Coord.z, pile.rc.floor(OCache.posres), 1, 0, int(pile.id), pile.rc.floor(OCache.posres), 0, -1)
                         while(not(gui.hand.isEmpty())):
                             HavenPanel.lui.cons.out.println("Waiting for EMPTY hand!")
                             sleep(1)
