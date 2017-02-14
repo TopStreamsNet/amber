@@ -18,7 +18,7 @@ class ButcherButton(Button):
         Button.__init__(self, width, caption)
     def click(self):
         HavenPanel.lui.cons.out.println("Butchering!")
-        JythonAutomation.getInstance().setTerminate(True)
+        JythonAutomation.getInstance().setRun(True)
 		
 class ClearButton(Button):
     def __init__(self, width, caption):
@@ -94,6 +94,8 @@ class ButcherBot(GobSelectCallback, Window):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         HavenPanel.lui.root.getchild(GameUI).map.unregisterGobSelect()
+        JythonAutomation.getInstance().setRun(False)
+        JythonAutomation.getInstance().setTerminate(False)
         self.destroy()
 
 # Our Automation
@@ -101,7 +103,7 @@ with ButcherBot(Coord(270,180),"Butcher Bot") as butcher:
     gui = HavenPanel.lui.root.getchild(GameUI)
     gui.add(butcher,Coord(gui.sz.x / 2 - butcher.sz.x / 2, gui.sz.y / 2 - butcher.sz.y / 2 - 200))
     HavenPanel.lui.root.getchild(GameUI).map.registerGobSelect(butcher)
-    while(JythonAutomation.getInstance().getTerminate() != True):
+    while(JythonAutomation.getInstance().getRun() != True):
         sleep(1)
 
     # For every configured body
@@ -120,7 +122,7 @@ with ButcherBot(Coord(270,180),"Butcher Bot") as butcher:
             if flowermenu.opts[i].name == "Skin":
                 HavenPanel.lui.cons.out.println("Going to Skin {0}".format(body))
                 flowermenu.choose(flowermenu.opts[i])
-                sleep(10)
+                Utils.waitForProgressFinish(gui,60000,"Stuck in Skinning")
                 # Check skins in inventory
                 hide_num = gui.maininv.getItemPartialCount("hide")
                 hide_num = hide_num + gui.maininv.getItemPartialCount("Hide")
@@ -149,7 +151,7 @@ with ButcherBot(Coord(270,180),"Butcher Bot") as butcher:
                         hide_num = hide_num + gui.maininv.getItemPartialCount("Hide")
                         if(hide_num == 0):
                             break
-
+                break
             elif flowermenu.opts[i].name == "Butcher":
                 HavenPanel.lui.cons.out.println("Going to Butcher {0}".format(body))
                 flowermenu.choose(flowermenu.opts[i])
@@ -219,3 +221,4 @@ with ButcherBot(Coord(270,180),"Butcher Bot") as butcher:
                         meat_num = gui.maininv.getItemPartialCount("Raw")
                         if meat_num == 0:
                             break
+                break
