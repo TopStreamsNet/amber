@@ -123,7 +123,7 @@ public class SteelRefueler extends Window implements GobSelectCallback {
                         fuelticks = 5; // branch
 
                     // navigate to crucible
-                    gui.map.pfRightClick(c, -1, 3, 1, null);
+                    gui.map.pfRightClick(c, -1, 3, 0, null);
                     try {
                         gui.map.pfthread.join();
                     } catch (InterruptedException e) {

@@ -349,10 +349,6 @@ class ButcherBot(GobSelectCallback, Window):
                     else:
                         HavenPanel.lui.cons.out.println("{0} body is gone, marked for removal".format(body))
                         gone.append(body)
-                        # move to where Gob should have been
-                        self.gui.map.pfLeftClick(body.rc.floor(), None)
-                        self.gui.map.pfthread.join()
-                        self.pickdropped(self.gui.map.glob.oc)
                     self.checkhides(MAX_HIDES)
                     self.checkintestines(MAX_INTESTINES)
                     self.checkentrails(MAX_ENTRAILS)
@@ -360,6 +356,10 @@ class ButcherBot(GobSelectCallback, Window):
                     self.checkbones(MAX_BONES)
                 for body in gone:
                     self.bodies.remove(body)
+                    # move to where Gob should have been
+                    self.gui.map.pfLeftClick(body.rc.floor(), None)
+                    self.gui.map.pfthread.join()
+                    self.pickdropped(self.gui.map.glob.oc)
                 self.checkhides(0)
                 self.checkintestines(0)
                 self.checkentrails(0)
