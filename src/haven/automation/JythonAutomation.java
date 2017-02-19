@@ -15,24 +15,10 @@ import java.io.FileNotFoundException;
 
 public class JythonAutomation implements Runnable {
     private String botname = "";
-    private Boolean run = false;
-    private Boolean terminate = false;
+    private Thread jt = null;
 
-    public Boolean getRun() {
-        return run;
-    }
-
-    public void setRun(Boolean run) {
-        this.run = run;
-    }
-
-
-    public Boolean getTerminate() {
-        return terminate;
-    }
-
-    public void setTerminate(Boolean terminate) {
-        this.terminate = terminate;
+    public Thread getJt() {
+        return jt;
     }
 
     public static class JythonAutomationHolder {
@@ -60,15 +46,12 @@ public class JythonAutomation implements Runnable {
             e.printStackTrace(HavenPanel.lui.cons.out);
         }
         HavenPanel.lui.cons.out.println("--/Running Jython Automation--");
-        this.terminate = false;
-
-
     }
 
     public void start(String[] args) {
         this.botname = args[1];
-        Thread jt = new Thread(JythonAutomation.getInstance(), "JBot thread");
-        jt.start();
+        this.jt = new Thread(JythonAutomation.getInstance(), "JBot thread");
+        this.jt.start();
     }
 
 }

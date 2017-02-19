@@ -1,0 +1,183 @@
+import haven.Window as Window
+import haven.Coord as Coord
+import haven.HavenPanel as HavenPanel
+import haven.GameUI as GameUI
+import haven.Button as Button
+import haven.Label as Label
+import haven.FlowerMenu as FlowerMenu
+import haven.OCache as OCache
+import haven.MCache as MCache
+import haven.ISBox as ISBox
+import haven.automation.Utils as Utils
+import haven.automation.GobSelectCallback as GobSelectCallback
+import haven.automation.AreaSelectCallback as AreaSelectCallback
+import haven.automation.JythonAutomation as JythonAutomation
+import haven.GAttrib as GAttrib
+import haven.ResDrawable as ResDrawable
+import haven.FastMesh.MeshRes as MeshRes
+
+from time import sleep, time
+from synchronize import make_synchronized
+
+class FarmerButton(Button):
+    def __init__(self, width, caption):
+        Button.__init__(self, width, caption)
+    def click(self):
+        HavenPanel.lui.cons.out.println("Farming!")
+        JythonAutomation.getInstance().setRun(True)
+        JythonAutomation.getInstance().setTerminate(False)
+
+class ClearButton(Button):
+    def __init__(self, width, caption):
+        Button.__init__(self, width, caption)
+    def click(self):
+        self.parent.seedpiles=[]
+        self.parent.lbl_seedpiles.settext("0")
+        HavenPanel.lui.cons.out.println("All Cleared!")
+        JythonAutomation.getInstance().setRun(False)
+        JythonAutomation.getInstance().setTerminate(True)
+
+class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
+    A = None
+    B = None
+    lbl_seedpiles = None
+    seedpiles = []
+
+    def __init__(self, coord, title):
+        Window.__init__(self, coord, title)
+
+        self.add(Label("Seed piles selected: "), Coord(15, 15))
+        self.lbl_seedpiles = Label("0")
+        self.add(self.lbl_seedpiles, Coord(120,15))
+
+        farmerbtn = FarmerButton(70, "Farm!")
+        self.add(farmerbtn, Coord(65, 140))
+
+        clearbtn = ClearButton(70, "Clear")
+        self.add(clearbtn, Coord(140, 140))
+
+    def gobselect(self, gob):
+        res = gob.getres()
+        if(res != None):
+            HavenPanel.lui.cons.out.println("gob selected: {0}".format(res.name))
+            if(res.name.startswith("gfx/terobjs/stockpile-wblock")):
+                self.seedpiles.append(gob)
+                self.lbl_seedpiles.settext("{0}".format(len(self.seedpiles)))
+
+    def areaselect(self, a, b):
+        HavenPanel.lui.cons.out.println("Coord A {0} : Coord B {1}".format(a,b))
+        self.A = a
+        self.B = b
+
+    def wdgmsg(self, sender, msg, *args):
+        if sender == self.cbtn:
+            self.reqdestroy()
+            JythonAutomation.getInstance().getJt().interrupt()
+        else:
+            Window.wdgmsg(sender, msg, args)
+
+    def type(self, key, ev):
+        if (key == 27):
+            if (self.cbtn.visible):
+                self.reqdestroy()
+                JythonAutomation.getInstance().getJt().interrupt()
+                return True
+        return Window.type(key, ev)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        HavenPanel.lui.root.getchild(GameUI).map.unregisterGobSelect()
+        HavenPanel.lui.root.getchild(GameUI).map.unregisterAreaSelect()
+        JythonAutomation.getInstance().setRun(False)
+        JythonAutomation.getInstance().setTerminate(False)
+        self.destroy()
+
+@make_synchronized
+def gettilegobs(oc):
+    gobs = []
+    for gob in oc:
+        res = gob.getres()
+        dist = gob.rc.dist(HavenPanel.lui.root.getchild(GameUI).map.player().rc)
+        if res != None and dist < 1:
+            gobs.append(gob)
+    return gobs
+
+def checkseeds():
+    return
+
+
+with FarmerBot(Coord(270,180),"Farmer Bot") as farmer:
+    gui = HavenPanel.lui.root.getchild(GameUI)
+    gui.add(farmer,Coord(gui.sz.x / 2 - farmer.sz.x / 2, gui.sz.y / 2 - farmer.sz.y / 2 - 200))
+    HavenPanel.lui.root.getchild(GameUI).map.registerGobSelect(farmer)
+    HavenPanel.lui.root.getchild(GameUI).map.registerAreaSelect(farmer)
+    while(JythonAutomation.getInstance().getRun() != True):
+        sleep(1)
+
+    while(JythonAutomation.getInstance().getTerminate() == False):
+        HavenPanel.lui.cons.out.println("Farming like a baus!")
+        for seedpile in farmer.seedpiles:
+            HavenPanel.lui.root.getchild(GameUI).map.pfRightClick(seedpile, -1, 3, 0, None)
+            HavenPanel.lui.root.getchild(GameUI).map.pfthread.join()
+            spwnd = gui.waitfForWnd("Stockpile", 1500)
+            isb = spwnd.getchild(ISBox)
+            isb.wdgmsg("xfer")
+            sleep(3)
+        """
+        pc = HavenPanel.lui.root.getchild(GameUI).map.player().rc.floor(MCache.tilesz)
+        HavenPanel.lui.cons.out.println("Player standing at: {0} A: {1} B: {2}".format(pc, farmer.A, farmer.B))
+        # Check if we are within farming boundaries if we are out move to the first tile
+        if(pc.x > farmer.B.x or pc.y > farmer.B.y or pc.x < farmer.A.x or pc.y < farmer.A.y):
+            HavenPanel.lui.cons.out.println("Moving to beginning")
+            HavenPanel.lui.root.getchild(GameUI).map.pfLeftClick(farmer.A.mul(11).add(5,5), None)
+            HavenPanel.lui.root.getchild(GameUI).map.pfthread.join()
+        else:
+            HavenPanel.lui.cons.out.println("...something else")
+            # Check if there is a gob on our tile
+            for gob in gettilegobs(HavenPanel.lui.root.getchild(GameUI).map.glob.oc):
+                res = gob.getres()
+                dist = gob.rc.dist(HavenPanel.lui.root.getchild(GameUI).map.player().rc)
+                # If this gob is a plant
+                if res.name.startswith("gfx/terobjs/plants"):
+                    rd = gob.getattr(ResDrawable)
+                    stage = 0
+                    stgmaxval = 0
+                    if rd != None:
+                        stage = rd.sdt.peekrbuf(0)
+                        for layer in res.layers(MeshRes):
+                            stg = layer.id / 10;
+                            if (stg > stgmaxval):
+                                stgmaxval = stg
+                        HavenPanel.lui.cons.out.println("Found {0} in {1} stage {2}/{3}".format(res.name,dist,stage,stgmaxval))
+                        if stage == stgmaxval:
+                            HavenPanel.lui.cons.out.println("Crop is ripe - Harvesting")
+                            HavenPanel.lui.root.getchild(GameUI).map.pfRightClick(gob, -1, 3, 0, None)
+                            HavenPanel.lui.root.getchild(GameUI).map.pfthread.join()
+                            while HavenPanel.lui.root.getchild(FlowerMenu) == None:
+                                HavenPanel.lui.cons.out.println("Waiting for flowers!")
+                                sleep(1)
+                            flowermenu = HavenPanel.lui.root.getchild(FlowerMenu)
+                            for i in range(len(flowermenu.opts)):
+                                HavenPanel.lui.cons.out.println("{0} {1}".format(i,flowermenu.opts[i]))
+                                if flowermenu.opts[i].name == "Harvest":
+                                    flowermenu.choose(flowermenu.opts[i])
+                        else:
+                            HavenPanel.lui.cons.out.println("Crop is growing - go next")
+            # Next tile
+            next_x = pc.x
+            next_y = pc.y+1
+            if next_y > farmer.B.y:
+                next_x = next_x+1
+                next_y = farmer.A.y
+            if next_x > farmer.B.x:
+                next_x = farmer.A.x
+                next_y = farmer.A.y
+            HavenPanel.lui.cons.out.println("Moving to next tile")
+            HavenPanel.lui.root.getchild(GameUI).map.pfLeftClick(Coord(next_x, next_y).mul(11).add(5,5), None)
+            HavenPanel.lui.root.getchild(GameUI).map.pfthread.join()
+        """
+
+
+
