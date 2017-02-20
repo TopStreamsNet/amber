@@ -372,4 +372,4 @@ class ButcherBot(GobSelectCallback, Window):
 # Our Automation
 with ButcherBot(Coord(270,180),"Butcher Bot") as bot:
     bot.run()
-    sleep(10)
+
