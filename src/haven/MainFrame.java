@@ -195,7 +195,7 @@ public class MainFrame extends java.awt.Frame implements Runnable, Console.Direc
         }
         this.g = new ThreadGroup(HackThread.tg(), "Haven client");
         this.mt = new HackThread(this.g, this, "Haven main thread");
-        this.ct = new Thread(new ConsoleInterface(),"Haven Console Interface");
+        this.ct = new HackThread(this.g, new ConsoleInterface(),"Haven Console Interface");
         this.ct.start();
         p = new HavenPanel(sz.x, sz.y);
         if (fsmode == null) {

@@ -2,6 +2,7 @@ package haven.automation;
 
 import org.python.util.PythonInterpreter;
 
+import haven.Config;
 import haven.GameUI;
 import haven.HavenPanel;
 
@@ -36,6 +37,8 @@ public class JythonAutomation implements Runnable {
     @Override
     public void run() {
         // TODO Auto-generated method stub
+    	if(Config.headless)
+        	System.out.println("--Running Jython Automation: " + this.botname + "--");
         HavenPanel.lui.cons.out.println("--Running Jython Automation: " + this.botname + "--");
         PythonInterpreter interp = new PythonInterpreter();
         try {
@@ -44,7 +47,13 @@ public class JythonAutomation implements Runnable {
         } catch (Exception e) {
             HavenPanel.lui.cons.out.println("Something went wrong!");
             e.printStackTrace(HavenPanel.lui.cons.out);
+            if(Config.headless){
+            	System.out.println("Something went wrong!");
+            	e.printStackTrace(System.out);
+            }
         }
+        if(Config.headless)
+        	System.out.println("--/Running Jython Automation--");
         HavenPanel.lui.cons.out.println("--/Running Jython Automation--");
     }
 

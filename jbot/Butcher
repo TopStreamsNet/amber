@@ -331,6 +331,7 @@ class ButcherBot(GobSelectCallback, Window):
         for gob in gobs:
             self.gui.map.pfRightClick(gob, -1, 3, 0, None)
             self.gui.map.pfthread.join()
+            self.checkbones(MAX_BONES)
 
 
     def run(self):
@@ -353,7 +354,6 @@ class ButcherBot(GobSelectCallback, Window):
                     self.checkintestines(MAX_INTESTINES)
                     self.checkentrails(MAX_ENTRAILS)
                     self.checkmeat(MAX_MEAT)
-                    self.checkbones(MAX_BONES)
                 for body in gone:
                     self.bodies.remove(body)
                     # move to where Gob should have been
