@@ -216,6 +216,7 @@ class SteelRefuelerBot(GobSelectCallback, AreaSelectCallback, Window):
                 for second in range(3600):
                     if second % 600:
                         HavenPanel.lui.cons.out.println("Still alive sleeping: {0}".format(second))
+                    sleep(1)
 
 
 
