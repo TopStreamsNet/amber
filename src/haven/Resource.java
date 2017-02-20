@@ -62,6 +62,7 @@ public class Resource implements Serializable {
     public static final String BUNDLE_MSG = "msg";
     public static final String BUNDLE_LABEL = "label";
     public static final String BUNDLE_ACTION = "action";
+    public static final String BUNDLE_INGREDIENT = "ingredient";
     private final static Map<String, Map<String, String>> l10nBundleMap;
     public static final boolean L10N_DEBUG = false;
 
@@ -779,7 +780,7 @@ public class Resource implements Serializable {
     }
 
     static {
-        l10nBundleMap =  new HashMap<String, Map<String, String>>(8) {{
+        l10nBundleMap =  new HashMap<String, Map<String, String>>(9) {{
             if (!language.equals("en") || Resource.L10N_DEBUG) {
                 put(BUNDLE_TOOLTIP, l10n(BUNDLE_TOOLTIP, language));
                 put(BUNDLE_PAGINA, l10n(BUNDLE_PAGINA, language));
@@ -789,6 +790,7 @@ public class Resource implements Serializable {
                 put(BUNDLE_MSG, l10n(BUNDLE_MSG, language));
                 put(BUNDLE_LABEL, l10n(BUNDLE_LABEL, language));
                 put(BUNDLE_ACTION, l10n(BUNDLE_ACTION, language));
+                put(BUNDLE_INGREDIENT, l10n(BUNDLE_INGREDIENT, language));
             }
         }};
 
@@ -1988,16 +1990,6 @@ public class Resource implements Serializable {
             if (bundle == BUNDLE_LABEL) {
                 for (String s : fmtLocStringsLabel) {
                     if (fmtLocString(map, key, s) != null)
-                        return;
-                }
-                final String partyInvite = " has invited you to join his party. Do you wish to do so?";
-                if (key.endsWith(partyInvite)) {
-                    if (map.get("%s" + partyInvite) != null)
-                        return;
-                }
-                final String spar = "has requested to spar with you. Do you accept?";
-                if (key.endsWith(spar)) {
-                    if (map.get("%s " + spar) != null)
                         return;
                 }
             } else if (bundle == BUNDLE_FLOWER) {

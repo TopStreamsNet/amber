@@ -1,3 +1,14 @@
+Version 1.54.2
+    Fixed:
+        * Aggro radius erroneously shown around mammoths.
+		* A couple of issues with world map.
+		* Mirkwood log highlight not working.
+		* Auto-mussel picker not working with Q key.
+
+	Misc:
+		* Restored automatic map tiles dumper.
+
+
 Version 1.54.1
     Fixed:
         * Regression introduced in v1.54.0

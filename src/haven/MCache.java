@@ -208,6 +208,7 @@ public class MCache {
                     MapMesh old = cut.mesh;
                     cut.mesh = cut.dmesh.get();
                     cut.dmesh = null;
+                    cut.ols = null;
                     if (old != null)
                         old.dispose();
                 }
@@ -502,7 +503,7 @@ public class MCache {
                     olseq++;
                     final Grid _g = g;
                     final MCache _this = this;
-                    /*if (Config.savemmap) {
+                    if (Config.savemmap) {
                         Defer.later(new Defer.Callable<Void>() {
                             public Void call() {
                                 try {
@@ -513,7 +514,7 @@ public class MCache {
                                 return null;
                             }
                         });
-                    }*/
+                    }
                 }
             }
         }

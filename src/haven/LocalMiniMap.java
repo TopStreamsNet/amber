@@ -220,7 +220,7 @@ public class LocalMiniMap extends Widget {
                         CheckListboxItem itm = Config.bushes.get(basename);
                         if (itm != null && itm.selected)
                             g.image(bushicn, p2c(gob.rc).add(delta).sub(bushicn.sz().div(2)));
-                    } else if (gob.type == Gob.Type.TREE) {
+                    } else if (gob.type == Gob.Type.TREE || gob.type == Gob.Type.OLDTRUNK) {
                         CheckListboxItem itm = Config.trees.get(basename);
                         if (itm != null && itm.selected)
                             g.image(treeicn, p2c(gob.rc).add(delta).sub(treeicn.sz().div(2)));

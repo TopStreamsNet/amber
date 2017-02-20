@@ -65,7 +65,7 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
     public Type type = null;
 
     public enum Type {
-        OTHER(0), DFRAME(1), TREE(2), BUSH(3), BOULDER(4), PLAYER(5), SIEGE_MACHINE(6), MAMMOTH(7), BAT(8),
+        OTHER(0), DFRAME(1), TREE(2), BUSH(3), BOULDER(4), PLAYER(5), SIEGE_MACHINE(6), MAMMOTH(7), BAT(8), OLDTRUNK(9),
         PLANT(16), MULTISTAGE_PLANT(17),
         MOB(32), BEAR(34), LYNX(35), TROLL(38), WALRUS(39),
         WOODEN_SUPPORT(64), STONE_SUPPORT(65), TROUGH(66), BEEHIVE(67);
@@ -368,6 +368,7 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
     }
 
     private void loadrattr() {
+        boolean upd = false;
         for (Iterator<ResAttr.Load> i = lrdata.iterator(); i.hasNext(); ) {
             ResAttr.Load rd = i.next();
             ResAttr attr;
@@ -384,6 +385,11 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
             rc.odat = rd.dat;
             rc.set(attr);
             i.remove();
+            upd = true;
+        }
+        if(upd) {
+            if(glob.oc.getgob(id) != null)
+                glob.oc.changed(this);
         }
     }
 
@@ -443,6 +449,8 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
 
         if (name.startsWith("gfx/terobjs/trees") && !name.endsWith("log") && !name.endsWith("oldtrunk"))
             type = Type.TREE;
+        else if (name.endsWith("oldtrunk"))
+            type = Type.OLDTRUNK;
         else if (name.endsWith("terobjs/plants/carrot") || name.endsWith("terobjs/plants/hemp"))
             type = Type.MULTISTAGE_PLANT;
         else if (name.startsWith("gfx/terobjs/plants") && !name.endsWith("trellis"))

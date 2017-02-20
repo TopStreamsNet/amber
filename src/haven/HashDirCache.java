@@ -274,26 +274,7 @@ public class HashDirCache implements ResCache {
 
             public void close() throws IOException {
                 fp.close();
-                // move will throw if destination file is locked
-                // thus we retry up to five times
-                Defer.later(new Defer.Callable<Void>() {
-                    private int retries = 5;
-                    public Void call() {
-                        try {
-                            Files.move(tmp.toPath(), path.toPath(), StandardCopyOption.ATOMIC_MOVE);
-                        } catch (IOException ioe) {
-                            try {
-                                Thread.sleep(500);
-                            } catch (InterruptedException e) {
-                                return null;
-                            }
-                            if (retries-- == 0)
-                                return null;
-                            Defer.later(this);
-                        }
-                        return null;
-                    }
-                });
+                Files.move(tmp.toPath(), path.toPath(), StandardCopyOption.ATOMIC_MOVE);
             }
         });
     }

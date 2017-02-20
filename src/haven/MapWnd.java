@@ -226,6 +226,7 @@ public class MapWnd extends Window {
                     List<Marker> markers = view.file.markers.stream().filter(filter).collect(java.util.stream.Collectors.toList());
                     markers.sort(mcmp);
                     this.markers = markers;
+                    markerseq = view.file.markerseq;
                 } finally {
                     view.file.lock.readLock().unlock();
                 }

@@ -720,7 +720,7 @@ public class OptWnd extends Window {
                 }
             }
         });
-        /*appender.add(new CheckBox("Save map tiles to disk") {
+        appender.add(new CheckBox("Save map tiles to disk") {
             {
                 a = Config.savemmap;
             }
@@ -731,7 +731,7 @@ public class OptWnd extends Window {
                 MapGridSave.mgs = null;
                 a = val;
             }
-        });*/
+        });
         appender.add(new CheckBox("Show timestamps in chats") {
             {
                 a = Config.chattimestamp;
@@ -963,41 +963,18 @@ public class OptWnd extends Window {
         appender.setVerticalMargin(VERTICAL_MARGIN);
         appender.setHorizontalMargin(HORIZONTAL_MARGIN);
 
-        appender.add(new CheckBox("Free camera rotation") {
-            {
-                a = Config.camfree;
-            }
-
-            public void set(boolean val) {
-                Utils.setprefb("camfree", val);
-                Config.camfree = val;
-                a = val;
-            }
-        });
-        appender.addRow(
-                new Label("Bad camera scrolling sensitivity"),
+        appender.addRow(new Label("Bad camera scrolling sensitivity"),
                 new HSlider(50, 0, 50, 0) {
                     protected void attach(UI ui) {
                         super.attach(ui);
                         val = Config.badcamsensitivity;
                     }
+
                     public void changed() {
                         Config.badcamsensitivity = val;
                         Utils.setprefi("badcamsensitivity", val);
                     }
                 });
-        // TODO: deprecated. pending complete removal.
-        /*appender.add(new CheckBox("Minimap: use MMB to drag & L/RMB to move") {
-            {
-                a = Config.alternmapctrls;
-            }
-
-            public void set(boolean val) {
-                Utils.setprefb("alternmapctrls", val);
-                Config.alternmapctrls = val;
-                a = val;
-            }
-        });*/
         appender.add(new CheckBox("Use French (AZERTY) keyboard layout") {
             {
                 a = Config.userazerty;

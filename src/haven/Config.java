@@ -58,7 +58,6 @@ public class Config {
     public static boolean showkinnames = Utils.getprefb("showkinnames", false);
     public static boolean savemmap = Utils.getprefb("savemmap", true);
     public static boolean studylock = Utils.getprefb("studylock", false);
-    public static boolean camfree = Utils.getprefb("camfree", false);
     public static boolean chatsave = Utils.getprefb("chatsave", false);
     public static boolean chattimestamp = Utils.getprefb("chattimestamp", false);
     public static boolean alarmunknown = Utils.getprefb("alarmunknown", false);
