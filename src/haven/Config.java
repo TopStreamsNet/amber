@@ -505,10 +505,11 @@ public class Config {
         out.println("  -A AUTHSERV[:PORT] Use specified authentication server");
         out.println("  -u USER            Authenticate as USER (together with -C)");
         out.println("  -C HEXCOOKIE       Authenticate with specified hex-encoded cookie");
+        out.println("  -l                 Headless mode");
     }
 
     public static void cmdline(String[] args) {
-        PosixArgs opt = PosixArgs.getopt(args, "hdPGp:U:r:A:u:C:l:");
+        PosixArgs opt = PosixArgs.getopt(args, "hdPGlp:U:r:A:u:C:");
         if (opt == null) {
             usage(System.err);
             System.exit(1);
