@@ -179,8 +179,6 @@ class SmelterRefuelerBot(GobSelectCallback, AreaSelectCallback, Window):
                     else:
                         fuelticks = 5
 
-
-
                     self.gui.map.pfRightClick(smelter, -1, 3, 0, None)
                     self.gui.map.pfthread.join()
                     cwnd = self.gui.waitfForWnd("Ore Smelter", 1500)
@@ -217,11 +215,6 @@ class SmelterRefuelerBot(GobSelectCallback, AreaSelectCallback, Window):
                     if second % 600 == 0:
                         HavenPanel.lui.cons.out.println("Still alive sleeping: {0}".format(second))
                     sleep(1)
-
-
-
-
-
 
 
 # Our Automation
