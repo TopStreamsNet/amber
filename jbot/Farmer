@@ -189,6 +189,28 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
             return True
         return False
 
+    def takeseed(self):
+        # Do we have carrots at all in the inventory?
+        carrot_count = self.gui.maininv.getItemPartialCount("Carrot")
+        good_carrot = None
+        if carrot_count > 0:
+            for carrot in self.gui.maininv.getItemsPartial("Carrot"):
+                if carrot.item.quality().q >= self.topq:
+                    good_carrot = carrot
+        if good_carrot == None:
+            self.gui.map.pfRightClick(self.topq_pile, -1, 3, 0, None)
+            self.gui.map.pfthread.join()
+            spwnd = self.gui.waitfForWnd("Stockpile", 1500)
+            isb = spwnd.getchild(ISBox)
+            isb.wdgmsg("xfer")
+            while(carrot_count >= self.gui.maininv.getItemPartialCount("Carrot")):
+                sleep(1)
+            self.takeseed()
+        else:
+            good_carrot.item.wdgmsg("take", Coord(good_carrot.item.sz.x / 2, good_carrot.item.sz.y / 2))
+            while(self.gui.hand.isEmpty() and self.state == State.RUN):
+                HavenPanel.lui.cons.out.println("Waiting for seed in hand!")
+                sleep(1)
 
     def run(self):
         self.gui = HavenPanel.lui.root.getchild(GameUI)
@@ -203,6 +225,8 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
                 HavenPanel.lui.cons.out.println("Next action: {0} tile: {1} coord: {2}".format(action, tile, coord))
                 if action == "Plant":
                     if self.shouldplant():
+                        self.takeseed()
+                        break
                         HavenPanel.lui.cons.out.println("Planting!")
                     else:
                         HavenPanel.lui.cons.out.println("Should not plant!")
