@@ -31,6 +31,17 @@ class ClearButton(Button):
         Button.__init__(self, width, caption)
     def click(self):
         self.parent.state = State.WAIT
+        self.parent.lbl_branchpiles = None
+        self.parent.lbl_coalpiles = None
+        self.parent.lbl_wblockpiles = None
+        self.parent.lbl_crucibels = None
+
+        self.parent.branchpiles = []
+        self.parent.coalpiles = []
+        self.parent.wblockpiles = []
+        self.parent.crucibels = []
+
+        self.parent.pointZero = None
         HavenPanel.lui.cons.out.println("All Cleared!")
 
 class SteelRefuelerBot(GobSelectCallback, AreaSelectCallback, Window):
@@ -46,6 +57,8 @@ class SteelRefuelerBot(GobSelectCallback, AreaSelectCallback, Window):
     coalpiles = []
     wblockpiles = []
     crucibels = []
+
+    pointZero = None
 
     def __init__(self, coord, title):
         Window.__init__(self, coord, title)
