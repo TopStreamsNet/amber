@@ -189,7 +189,7 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
             return True
         return False
 
-    def takeseed(self):
+    def plantseed(self, coord, tile):
         # Do we have carrots at all in the inventory?
         carrot_count = self.gui.maininv.getItemPartialCount("Carrot")
         good_carrot = None
@@ -205,12 +205,23 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
             isb.wdgmsg("xfer")
             while(carrot_count >= self.gui.maininv.getItemPartialCount("Carrot")):
                 sleep(1)
-            self.takeseed()
+            self.plantseed(coord, tile)
         else:
+            self.gui.map.pfLeftClick(coord, None)
+            self.gui.map.pfthread.join()
+            quality = good_carrot.item.quality().q
             good_carrot.item.wdgmsg("take", Coord(good_carrot.item.sz.x / 2, good_carrot.item.sz.y / 2))
             while(self.gui.hand.isEmpty() and self.state == State.RUN):
                 HavenPanel.lui.cons.out.println("Waiting for seed in hand!")
                 sleep(1)
+
+            self.gui.map.wdgmsg("itemact", Coord.z,  self.gui.map.player().rc.floor(OCache.posres), 0)
+            while(not(self.gui.hand.isEmpty()) and self.state == State.RUN):
+                HavenPanel.lui.cons.out.println("Waiting for EMPTY hand!")
+                sleep(1)
+            f = open('plant.log', 'a+')
+            f.write("[{0}] dt {1} mp {2} yt {3} tile={4} quality={5}\n".format(self.gui.map.glob.servertime, self.gui.map.glob.ast.dt,self.gui.map.glob.ast.mp,self.gui.map.glob.ast.yt, tile, quality))
+            f.close()
 
     def run(self):
         self.gui = HavenPanel.lui.root.getchild(GameUI)
@@ -225,8 +236,7 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
                 HavenPanel.lui.cons.out.println("Next action: {0} tile: {1} coord: {2}".format(action, tile, coord))
                 if action == "Plant":
                     if self.shouldplant():
-                        self.takeseed()
-                        break
+                        self.plantseed(coord, tile)
                         HavenPanel.lui.cons.out.println("Planting!")
                     else:
                         HavenPanel.lui.cons.out.println("Should not plant!")
