@@ -22,6 +22,7 @@ from synchronize import make_synchronized
 
 PLANT_FREQ = 3600
 PLANT_NUM = 1
+HARVEST_STAGE = 3
 
 @make_synchronized
 def gettilegobs(oc,coord,gui):
@@ -40,8 +41,8 @@ class StartButton(Button):
     def __init__(self, width, caption):
         Button.__init__(self, width, caption)
     def click(self):
-        self.parent.field_length = self.parent.B.x - self.parent.A.x + 1
-        self.parent.field_width = self.parent.B.y - self.parent.A.y + 1
+        self.parent.field_length = self.parent.BottomRight.x - self.parent.TopLeft.x + 1
+        self.parent.field_width = self.parent.BottomRight.y - self.parent.TopLeft.y + 1
         self.parent.state = State.RUN
         HavenPanel.lui.cons.out.println("Farming!")
 
@@ -56,31 +57,20 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
     state = State.WAIT
     gui = None
 
-    lbl_seedpiles = None
-    seedpiles = []
-    A = None
-    B = None
-    next_tile = 0
+    TopLeft = None
+    BottomRight = None
     field_length = 0
     field_width = 0
-    last_planted_time = -1
-    last_planted_num = 0
-    topq = 0
-    topq_pile = None
+
+    next_tile = 0
 
     def __init__(self, coord, title):
         Window.__init__(self, coord, title)
-
-        self.add(Label("Seedpiles selected: "), Coord(15, 15))
-        self.lbl_seedpiles = Label("0")
-        self.add(self.lbl_seedpiles, Coord(120,15))
-
         startbtn = StartButton(70, "Farm!")
         self.add(startbtn, Coord(65, 140))
 
         clearbtn = ClearButton(70, "Clear")
         self.add(clearbtn, Coord(140, 140))
-
     def __enter__(self):
         return self
 
@@ -110,19 +100,16 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
         res = gob.getres()
         if(res != None):
             HavenPanel.lui.cons.out.println("gob selected: {0}".format(res.name))
-            if(res.name.startswith("gfx/terobjs/stockpile-")):
-                self.seedpiles.append(gob)
-                self.lbl_seedpiles.settext("{0}".format(len(self.seedpiles)))
 
     def areaselect(self, a, b):
         HavenPanel.lui.cons.out.println("Coord A {0} : Coord B {1}".format(a,b))
-        self.A = a
-        self.B = b
+        self.TopLeft = a
+        self.BottomRight = b
 
     def check_next_tile(self):
         shift_width=int(self.next_tile/self.field_width)
         shift_length=self.next_tile%self.field_width
-        coord = self.A.add(shift_width,shift_length).mul(11).add(5,5)
+        coord = self.TopLeft.add(shift_width,shift_length).mul(11).add(5,5)
         HavenPanel.lui.cons.out.println("tile {0} {1}:{2}".format(self.next_tile,shift_width,shift_length))
         action  = "Plant"
         tile = self.next_tile
@@ -139,7 +126,7 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
                         if (stg > stgmaxval):
                             stgmaxval = stg
                     HavenPanel.lui.cons.out.println("Found {0} stage {1}/{2}".format(res.name,stage,stgmaxval))
-                    if stage == stgmaxval:
+                    if stage == stgmaxval or stage == HARVEST_STAGE:
                         HavenPanel.lui.cons.out.println("Crop is ripe - Harvesting")
                         action = "Harvest"
                     else:
@@ -148,80 +135,8 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
         self.next_tile = (self.next_tile+1)%(self.field_length*self.field_width)
         return [action, tile, coord]
 
-
-    def checkpiles(self):
-        for seedpile in self.seedpiles:
-            self.gui.map.pfRightClick(seedpile, -1, 3, 0, None)
-            self.gui.map.pfthread.join()
-            spwnd = self.gui.waitfForWnd("Stockpile", 1500)
-            isb = spwnd.getchild(ISBox)
-            isb.wdgmsg("xfer")
-            while(self.gui.maininv.getItemPartialCount("Carrot")==0):
-                sleep(1)
-            seed = self.gui.maininv.getItemPartial("Carrot")
-            quality = seed.item.quality().q
-            HavenPanel.lui.cons.out.println("Quality: {0} in pile {1}".format(quality, seedpile))
-            if quality > self.topq:
-                self.topq = quality
-                self.topq_pile = seedpile
-            seed.item.wdgmsg("take", Coord(seed.item.sz.x / 2, seed.item.sz.y / 2))
-            while(self.gui.hand.isEmpty() and self.state == State.RUN):
-                HavenPanel.lui.cons.out.println("Waiting for seed in hand!")
-                sleep(1)
-            self.gui.map.wdgmsg("itemact", Coord.z, seedpile.rc.floor(OCache.posres), 0, 0, int(seedpile.id), seedpile.rc.floor(OCache.posres), 0, -1)
-            while(not(self.gui.hand.isEmpty()) and self.state == State.RUN):
-                HavenPanel.lui.cons.out.println("Waiting for EMPTY hand!")
-                sleep(1)
-        HavenPanel.lui.cons.out.println("Top Quality: {0} in pile {1}".format(self.topq, self.topq_pile))
-
-
-
-    def shouldplant(self):
-        secs = self.gui.map.glob.globtime()/1000
-        if self.last_planted_time < 0 or (secs - self.last_planted_time) > PLANT_FREQ:
-            self.last_planted_time = secs
-            self.last_planted_num = 1
-            HavenPanel.lui.cons.out.println("Last planted on {0} time passed since {1}".format(self.last_planted_time,(secs - self.last_planted_time)))
-            return True
-        elif self.last_planted_time > 0 and (secs - self.last_planted_time) < PLANT_FREQ and self.last_planted_num < PLANT_NUM:
-            HavenPanel.lui.cons.out.println("Last planted on {0} time passed since {1} planted so far {2}".format(self.last_planted_time,(secs - self.last_planted_time),self.last_planted_num))
-            self.last_planted_num = self.last_planted_num + 1
-            return True
-        return False
-
-    def plantseed(self, coord, tile):
-        # Do we have carrots at all in the inventory?
-        carrot_count = self.gui.maininv.getItemPartialCount("Carrot")
-        good_carrot = None
-        if carrot_count > 0:
-            for carrot in self.gui.maininv.getItemsPartial("Carrot"):
-                if carrot.item.quality().q >= self.topq:
-                    good_carrot = carrot
-        if good_carrot == None:
-            self.gui.map.pfRightClick(self.topq_pile, -1, 3, 0, None)
-            self.gui.map.pfthread.join()
-            spwnd = self.gui.waitfForWnd("Stockpile", 1500)
-            isb = spwnd.getchild(ISBox)
-            isb.wdgmsg("xfer")
-            while(carrot_count >= self.gui.maininv.getItemPartialCount("Carrot")):
-                sleep(1)
-            self.plantseed(coord, tile)
-        else:
-            self.gui.map.pfLeftClick(coord, None)
-            self.gui.map.pfthread.join()
-            quality = good_carrot.item.quality().q
-            good_carrot.item.wdgmsg("take", Coord(good_carrot.item.sz.x / 2, good_carrot.item.sz.y / 2))
-            while(self.gui.hand.isEmpty() and self.state == State.RUN):
-                HavenPanel.lui.cons.out.println("Waiting for seed in hand!")
-                sleep(1)
-
-            self.gui.map.wdgmsg("itemact", Coord.z,  self.gui.map.player().rc.floor(OCache.posres), 0)
-            while(not(self.gui.hand.isEmpty()) and self.state == State.RUN):
-                HavenPanel.lui.cons.out.println("Waiting for EMPTY hand!")
-                sleep(1)
-            f = open('plant.log', 'a+')
-            f.write("[{0}] dt {1} mp {2} yt {3} tile={4} quality={5}\n".format(self.gui.map.glob.servertime, self.gui.map.glob.ast.dt,self.gui.map.glob.ast.mp,self.gui.map.glob.ast.yt, tile, quality))
-            f.close()
+    def isplantingtime(self):
+        return True
 
     def run(self):
         self.gui = HavenPanel.lui.root.getchild(GameUI)
@@ -230,16 +145,12 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
         self.gui.map.registerAreaSelect(self)
         while self.state != State.TERM:
             if self.state == State.RUN:
-                if self.topq == 0:
-                    self.checkpiles()
                 [action, tile, coord] = self.check_next_tile()
                 HavenPanel.lui.cons.out.println("Next action: {0} tile: {1} coord: {2}".format(action, tile, coord))
-                if action == "Plant":
-                    if self.shouldplant():
-                        self.plantseed(coord, tile)
-                        HavenPanel.lui.cons.out.println("Planting!")
-                    else:
-                        HavenPanel.lui.cons.out.println("Should not plant!")
+                if action == "Plant" and self.isplantingtime() == True:
+                    HavenPanel.lui.cons.out.println("planting")
+                elif action == "Harvest":
+                    HavenPanel.lui.cons.out.println("harvesting")
                 sleep(1)
 
 with FarmerBot(Coord(270,180),"Farmer Bot") as bot:

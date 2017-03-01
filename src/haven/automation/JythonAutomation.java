@@ -36,7 +36,6 @@ public class JythonAutomation implements Runnable {
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
     	if(Config.headless)
         	System.out.println("--Running Jython Automation: " + this.botname + "--");
         HavenPanel.lui.cons.out.println("--Running Jython Automation: " + this.botname + "--");
