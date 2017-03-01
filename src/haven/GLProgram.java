@@ -27,7 +27,7 @@
 package haven;
 
 import java.util.*;
-import com.jogamp.opengl.*;
+import javax.media.opengl.*;
 
 import haven.GLShader.VertexShader;
 import haven.GLShader.FragmentShader;

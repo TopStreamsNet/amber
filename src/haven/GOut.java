@@ -28,7 +28,7 @@ package haven;
 
 import java.awt.Color;
 import java.awt.image.*;
-import com.jogamp.opengl.*;
+import javax.media.opengl.*;
 import java.nio.*;
 
 public class GOut {
@@ -70,7 +70,7 @@ public class GOut {
     public static class GLException extends RuntimeException {
         public int code;
         public String str;
-        private static com.jogamp.opengl.glu.GLU glu = new com.jogamp.opengl.glu.GLU();
+        private static javax.media.opengl.glu.GLU glu = new javax.media.opengl.glu.GLU();
 
         public GLException(int code) {
             super("GL Error: " + code + " (" + glu.gluErrorString(code) + ")");

@@ -33,7 +33,7 @@ import java.io.*;
 import javax.imageio.ImageIO;
 import java.awt.color.ColorSpace;
 import java.nio.ByteBuffer;
-import com.jogamp.opengl.*;
+import javax.media.opengl.*;
 import java.security.*;
 
 import haven.Defer.Future;

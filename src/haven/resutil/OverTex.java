@@ -31,7 +31,7 @@ import haven.glsl.*;
 
 import java.util.*;
 import java.nio.*;
-import com.jogamp.opengl.*;
+import javax.media.opengl.*;
 
 import static haven.glsl.Cons.*;
 import static haven.glsl.Type.*;

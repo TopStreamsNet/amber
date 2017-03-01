@@ -29,7 +29,7 @@ package haven;
 import java.util.*;
 import java.awt.image.*;
 import java.nio.ByteBuffer;
-import com.jogamp.opengl.*;
+import javax.media.opengl.*;
 
 import haven.Defer.Future;
 

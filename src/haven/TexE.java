@@ -26,7 +26,7 @@
 
 package haven;
 
-import com.jogamp.opengl.*;
+import javax.media.opengl.*;
 
 public class TexE extends TexGL {
     public final int ifmt, dfmt, dtype;

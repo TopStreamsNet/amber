@@ -32,7 +32,7 @@ import java.awt.Color;
 import java.util.*;
 import java.awt.image.*;
 import java.nio.*;
-import com.jogamp.opengl.*;
+import javax.media.opengl.*;
 
 import static haven.GOut.checkerr;
 

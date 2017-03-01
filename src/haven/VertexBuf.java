@@ -29,7 +29,7 @@ package haven;
 import java.nio.*;
 import java.util.*;
 import java.lang.annotation.*;
-import com.jogamp.opengl.*;
+import javax.media.opengl.*;
 
 import haven.GLProgram.VarID;
 

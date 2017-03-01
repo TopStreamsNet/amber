@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-import com.jogamp.opengl.GL;
+import javax.media.opengl.GL;
 
 public class PartyMemberOutline extends Sprite {
     private final GLState mat;

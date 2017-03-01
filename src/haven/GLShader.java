@@ -28,7 +28,7 @@ package haven;
 
 import java.io.*;
 import java.util.*;
-import com.jogamp.opengl.*;
+import javax.media.opengl.*;
 
 public abstract class GLShader implements java.io.Serializable {
     public final String source, header;

@@ -26,7 +26,7 @@
 
 package haven;
 
-import com.jogamp.opengl.*;
+import javax.media.opengl.*;
 
 public abstract class Transform extends GLState {
     private Matrix4f xf;

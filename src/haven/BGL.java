@@ -26,7 +26,7 @@
 
 package haven;
 
-import com.jogamp.opengl.*;
+import javax.media.opengl.*;
 import java.nio.*;
 import java.util.*;
 import java.io.*;

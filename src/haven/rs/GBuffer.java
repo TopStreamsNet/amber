@@ -28,7 +28,7 @@ package haven.rs;
 
 import haven.*;
 
-import com.jogamp.opengl.*;
+import javax.media.opengl.*;
 import java.awt.image.BufferedImage;
 
 public class GBuffer {

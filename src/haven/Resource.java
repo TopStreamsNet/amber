@@ -1117,7 +1117,7 @@ public class Resource implements Serializable {
             Tex packbuf = new TexL(new Coord(minw, minh)) {
                 {
                     mipmap(Mipmapper.avg);
-                    minfilter(com.jogamp.opengl.GL2.GL_NEAREST_MIPMAP_LINEAR);
+                    minfilter(javax.media.opengl.GL2.GL_NEAREST_MIPMAP_LINEAR);
                     centroid = true;
                 }
 

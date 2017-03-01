@@ -30,7 +30,7 @@ import haven.glsl.*;
 
 import java.util.*;
 import java.awt.Color;
-import com.jogamp.opengl.*;
+import javax.media.opengl.*;
 
 import static haven.Utils.c2fa;
 

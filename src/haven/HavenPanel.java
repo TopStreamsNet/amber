@@ -26,8 +26,7 @@
 
 package haven;
 
-import com.jogamp.opengl.util.GLReadBufferUtil;
-import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
+import com.jogamp.opengl.util.awt.Screenshot;
 
 import java.awt.GraphicsConfiguration;
 import java.awt.Color;
@@ -41,8 +40,8 @@ import java.util.*;
 
 import javax.imageio.ImageIO;
 
-import com.jogamp.opengl.*;
-import com.jogamp.opengl.awt.*;
+import javax.media.opengl.*;
+import javax.media.opengl.awt.*;
 
 public class HavenPanel extends GLCanvas implements Runnable, Console.Directory {
     UI ui;
@@ -107,9 +106,7 @@ public class HavenPanel extends GLCanvas implements Runnable, Console.Directory 
                     String curtimestamp = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss.SSS").format(new Date());
                     File outputfile = new File(String.format("screenshots/%s.png", curtimestamp));
                     outputfile.getParentFile().mkdirs();
-                    AWTGLReadBufferUtil glReadBufferUtil=new AWTGLReadBufferUtil(d.getGLProfile(),false);
-                    BufferedImage image=glReadBufferUtil.readPixelsToBufferedImage(d.getGL(),true);
-                    ImageIO.write(image, "png", outputfile);                  
+                    Screenshot.writeToFile(outputfile, d.getWidth(), d.getHeight());
                     ui.root.findchild(GameUI.class).msg(String.format("Screenshot has been saved as \"%s\"", outputfile.getName()), Color.WHITE);
                 } catch (Exception ex) {
                     System.out.println("Unable to take screenshot: " + ex.getMessage());

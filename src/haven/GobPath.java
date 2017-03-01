@@ -1,6 +1,6 @@
 package haven;
 
-import com.jogamp.opengl.GL2;
+import javax.media.opengl.GL2;
 import java.awt.*;
 
 public class GobPath extends Sprite {

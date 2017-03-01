@@ -34,7 +34,7 @@ import haven.glsl.*;
 import static haven.glsl.Cons.*;
 import static haven.glsl.Type.*;
 
-import com.jogamp.opengl.*;
+import javax.media.opengl.*;
 
 public class Outlines implements Rendered {
     private boolean symmetric;

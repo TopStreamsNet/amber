@@ -28,7 +28,7 @@ package haven.glsl;
 
 import java.util.*;
 import java.nio.*;
-import com.jogamp.opengl.*;
+import javax.media.opengl.*;
 import haven.*;
 import haven.GLState.Slot;
 import haven.GLState.Buffer;

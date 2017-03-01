@@ -28,7 +28,7 @@ package haven;
 
 import java.io.*;
 import java.awt.image.*;
-import com.jogamp.opengl.*;
+import javax.media.opengl.*;
 
 public class Debug {
     public static boolean kf1, kf2, kf3, kf4;
