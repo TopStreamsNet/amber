@@ -48,6 +48,18 @@ class ClearButton(Button):
         self.parent.lbl_bonepiles.settext("0")
         HavenPanel.lui.cons.out.println("All Cleared!")
 
+@make_synchronized
+def pickdropped(oc, gui, bot):
+    gobs = []
+    for gob in oc:
+        res = gob.getres()
+        dist = gob.rc.dist(gui.map.player().rc)
+        if res != None and dist < 22:
+            gobs.append(gob)
+    for gob in gobs:
+        gui.map.pfRightClick(gob, -1, 3, 0, None)
+        gui.map.pfthread.join()
+        bot.checkbones(MAX_BONES)
 			
 class ButcherBot(GobSelectCallback, Window):
     state = State.WAIT
@@ -320,20 +332,6 @@ class ButcherBot(GobSelectCallback, Window):
                 if meat_num == 0:
                     return
 
-    @make_synchronized
-    def pickdropped(self, oc):
-        gobs = []
-        for gob in oc:
-            res = gob.getres()
-            dist = gob.rc.dist(HavenPanel.lui.root.getchild(GameUI).map.player().rc)
-            if res != None and dist < 22:
-                gobs.append(gob)
-        for gob in gobs:
-            self.gui.map.pfRightClick(gob, -1, 3, 0, None)
-            self.gui.map.pfthread.join()
-            self.checkbones(MAX_BONES)
-
-
     def run(self):
         self.gui = HavenPanel.lui.root.getchild(GameUI)
         self.gui.add(self,Coord(self.gui.sz.x / 2 - self.sz.x / 2, self.gui.sz.y / 2 - self.sz.y / 2 - 200))
@@ -359,7 +357,7 @@ class ButcherBot(GobSelectCallback, Window):
                     # move to where Gob should have been
                     self.gui.map.pfLeftClick(body.rc.floor(), None)
                     self.gui.map.pfthread.join()
-                    self.pickdropped(self.gui.map.glob.oc)
+                    pickdropped(self.gui.map.glob.oc, self.gui, self)
                 self.checkhides(0)
                 self.checkintestines(0)
                 self.checkentrails(0)

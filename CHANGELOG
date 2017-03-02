@@ -1,3 +1,14 @@
+Version 1.54.3
+    Fixed:
+        * Crime/tracking/swimming icons not showing.
+		* Crash related to baseq console command.
+		* Ping time not displayed for IPv6 routes.
+
+	Misc:
+		* Upstream code merge.
+		* Removed auto-leveler since it's implemented server-side now.
+
+
 Version 1.54.2
     Fixed:
         * Aggro radius erroneously shown around mammoths.
