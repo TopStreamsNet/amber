@@ -22,8 +22,10 @@ import haven.GItem as GItem
 from time import sleep, time
 import operator
 
+import JbotUtils
+reload(JbotUtils)
+
 from JbotUtils import *
-from JbotUtils import zloezlo
 
 PLANT_FREQ = 3600
 PLANT_NUM = 1
@@ -123,7 +125,7 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
         HavenPanel.lui.cons.out.println("tile {0} {1}:{2}".format(self.next_tile,shift_width,shift_length))
         ability  = "CanPlant"
         tile = self.next_tile
-        for gob in gettilegobs(self.gui.map.glob.oc, Coord2d(coord), self.gui):
+        for gob in gettilegobs(self.gui.map.glob.oc, Coord2d(coord)):
             res = gob.getres()
             if res.name.startswith("gfx/terobjs/plants"):
                 rd = gob.getattr(ResDrawable)
@@ -158,9 +160,22 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
         return False
 
     def plant(self, tile, coord):
-        HavenPanel.lui.cons.out.println("planting")
         #itemactcoord(coord,True,TIMEOUT,Coord(self.TopLeft.x+self.field_length/2,self.TopLeft.y+self.field_width/2))
-        itemactcoord(coord,True,TIMEOUT,Coord(self.TopLeft.x+self.field_length/2,self.TopLeft.y+self.field_width/2))
+        iteminfo = self.gui.vhand.item.info()
+        ninf = ItemInfo.find(GItem.NumberInfo, iteminfo)
+        num = ninf.itemnum()
+        if num == 5:
+            itemactcoord(coord,True,TIMEOUT,Coord(self.TopLeft.x+self.field_length/2,self.TopLeft.y+self.field_width/2))
+        else:
+            itemactcoord(coord,False)
+            new_num = num
+            while(new_num == num):
+                sleep(1)
+                iteminfo = self.gui.vhand.item.info()
+                ninf = ItemInfo.find(GItem.NumberInfo, iteminfo)
+                new_num = ninf.itemnum()
+            slot = getfreeslot(self.gui.vhand,self.gui.maininv)
+            self.gui.maininv.drop(Coord.z,slot)
         f = open('plant.log', 'a+')
         f.write("[{0}] dt {1} mp {2} yt {3} tile={4} quality={5}\n".format(self.gui.map.glob.servertime,
                                                                            self.gui.map.glob.ast.dt,
@@ -258,7 +273,7 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
                 if ability == "CanPlant" and self.shouldplant() == True:
                     self.takeseed()
                     if not(self.gui.hand.isEmpty()):
-                        self.plant(tile, coord)
+                        self.plant(tile, Coord2d(coord))
                 elif ability == "CanHarvest":
                     HavenPanel.lui.cons.out.println("harvesting")
                 sleep(1)
