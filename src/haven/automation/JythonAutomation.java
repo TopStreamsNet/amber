@@ -12,6 +12,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Properties;
 
 
 public class JythonAutomation implements Runnable {
@@ -39,9 +40,14 @@ public class JythonAutomation implements Runnable {
     	if(Config.headless)
         	System.out.println("--Running Jython Automation: " + this.botname + "--");
         HavenPanel.lui.cons.out.println("--Running Jython Automation: " + this.botname + "--");
+        Properties props = new Properties();
+        props.setProperty("python.path", System.getProperty("user.dir")+"/jbot/");
+        PythonInterpreter.initialize(System.getProperties(), props, new String[] {""});
         PythonInterpreter interp = new PythonInterpreter();
+
+
         try {
-            FileInputStream fis = new FileInputStream(new File("jbot/" + this.botname));
+            FileInputStream fis = new FileInputStream(new File("jbot/" + this.botname + ".py"));
             interp.execfile(fis);
         } catch (Exception e) {
             HavenPanel.lui.cons.out.println("Something went wrong!");
