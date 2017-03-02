@@ -82,7 +82,7 @@ public class FoodInfo extends ItemInfo.Tip {
         for (int i = 0; i < evs.length; i++) {
             Color col = Utils.blendcol(evs[i].ev.col, Color.WHITE, 0.5);
             String str;
-            if (showbaseq) {
+            if (showbaseq && owner instanceof GItem) {
                 GItem.Quality q = ((GItem) owner).quality();
                 str = String.format("%s: $col[%d,%d,%d]{%s}  $col[%d,%d,%d]{(%s)}",
                         evs[i].ev.nm,

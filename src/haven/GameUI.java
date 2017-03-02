@@ -478,15 +478,15 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 
             if (trackon) {
                 buffs.addchild(new BuffToggle("track", Bufflist.bufftrack));
-                errornosfx("Tracking is now turned on.");
+                msgnosfx(Resource.getLocString(Resource.BUNDLE_MSG, "Tracking is now turned on."));
             }
             if (crimeon) {
                 buffs.addchild(new BuffToggle("crime", Bufflist.buffcrime));
-                errornosfx("Criminal acts are now turned on.");
+                msgnosfx(Resource.getLocString(Resource.BUNDLE_MSG, "Criminal acts are now turned on."));
             }
             if (swimon) {
                 buffs.addchild(new BuffToggle("swim", Bufflist.buffswim));
-                errornosfx("Swimming is now turned on.");
+                msgnosfx(Resource.getLocString(Resource.BUNDLE_MSG, "Swimming is now turned on."));
             }
         } else if (place == "menu") {
             menu = (MenuGrid)brpanel.add(child, 20, 34);
@@ -689,7 +689,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
             if (tgl != null)
                 tgl.reqdestroy();
             if (name.equals("swim"))
-                swimon = true;
+                swimon = false;
             else if (name.equals("crime"))
                 crimeon = false;
             else if (name.equals("track"))
@@ -699,27 +699,26 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 
     public void uimsg(String msg, Object... args) {
         if (msg == "err") {
-            String err = (String) args[0];
-            if (err.startsWith("Swimming is now turned")) {
-                togglebuff(err, "swim", Bufflist.buffswim);
-            } else if (err.startsWith("Tracking is now turned")) {
-                togglebuff(err, "track", Bufflist.bufftrack);
+            error((String) args[0]);
+        } else if (msg == "msg") {
+            String text = (String) args[0];
+            if (text.startsWith("Swimming is now turned")) {
+                togglebuff(text, "swim", Bufflist.buffswim);
+            } else if (text.startsWith("Tracking is now turned")) {
+                togglebuff(text, "track", Bufflist.bufftrack);
                 if (trackautotgld) {
-                    errornosfx(err);
+                    msgnosfx(text);
                     trackautotgld = false;
                     return;
                 }
-            } else if (err.startsWith("Criminal acts are now turned")) {
-                togglebuff(err, "crime", Bufflist.buffcrime);
+            } else if (text.startsWith("Criminal acts are now turned")) {
+                togglebuff(text, "crime", Bufflist.buffcrime);
                 if (crimeautotgld) {
-                    errornosfx(err);
+                    msgnosfx(text);
                     crimeautotgld = false;
                     return;
                 }
             }
-            error(err);
-        } else if (msg == "msg") {
-            String text = (String) args[0];
             msg(text);
         } else if (msg == "prog") {
             if (args.length > 0)
@@ -1067,8 +1066,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
         }
     }
 
-    public void errornosfx(String msg) {
-        msg(msg, new Color(192, 0, 0), new Color(255, 0, 0));
+    public void msgnosfx(String msg) {
+        msg(msg, new Color(255, 255, 254), Color.WHITE);
     }
 
     private static final String charterMsg = "The name of this charterstone is \"";

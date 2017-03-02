@@ -1729,11 +1729,6 @@ public class MapView extends PView implements DTarget, Console.Directory, PFList
                 modflags = modflags & ~4;
 
             if (inf == null) {
-                if (Config.tilecenter && clickb == 1) {
-                    mc.x = ((int)mc.x / 11) * 11 + Integer.signum((int)mc.x) * 5;
-                    mc.y = ((int)mc.y / 11) * 11 + Integer.signum((int)mc.y) * 5;
-                }
-
                 if (Config.pf && clickb == 1 && curs != null && !curs.name.equals("gfx/hud/curs/study")) {
                     pfLeftClick(mc.floor(), null);
                 } else {
