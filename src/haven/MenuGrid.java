@@ -206,8 +206,7 @@ public class MenuGrid extends Widget {
             p.add(paginafor(Resource.local().load("paginae/amber/coal11")));
             p.add(paginafor(Resource.local().load("paginae/amber/coal12")));
             p.add(paginafor(Resource.local().load("paginae/amber/branchoven")));
-            p.add(paginafor(Resource.local().load("paginae/amber/steel")));
-            p.add(paginafor(Resource.local().load("paginae/amber/autosurvey")));
+           // p.add(paginafor(Resource.local().load("paginae/amber/steel")));
             p.add(paginafor(Resource.local().load("paginae/amber/torch")));
             p.add(paginafor(Resource.local().load("paginae/amber/clover")));
             p.add(paginafor(Resource.local().load("paginae/amber/fish")));
@@ -412,29 +411,16 @@ public class MenuGrid extends Widget {
                     gui.map.registerGobSelect(sw);
                 }
             }
-        } else if (ad[1].equals("level")) {
-            if (gui.getwnd("Auto Leveler") == null) {
-                AutoLeveler lw = new AutoLeveler();
-                gui.map.autoleveler = lw;
-                gui.add(lw, new Coord(gui.sz.x / 2 - lw.sz.x / 2, gui.sz.y / 2 - lw.sz.y / 2 - 200));
-                synchronized (GobSelectCallback.class) {
-                    gui.map.registerGobSelect(lw);
-                }
-                synchronized (ErrorSysMsgCallback.class) {
-                    gui.registerErrMsg(lw);
-                }
-            }
         } else if (ad[1].equals("torch")) {
             new Thread(new LightWithTorch(gui), "LightWithTorch").start();
         } else if (ad[1].equals("timers")) {
             gui.timerswnd.show(!gui.timerswnd.visible);
             gui.timerswnd.raise();
         } else if (ad[1].equals("clover")) {
-        	Thread t = new Thread(new FeedClover(gui), "FeedClover");
-        	t.start();
+            new Thread(new FeedClover(gui), "FeedClover").start();
         } else if (ad[1].equals("fish")) {
             new Thread(new ButcherFish(gui), "ButcherFish").start();
-        
+
         } else if (ad[1].equals("autokin")){
         	Thread t = new Thread(new AutoKin(gui), "AutoKin");
         	t.start();
