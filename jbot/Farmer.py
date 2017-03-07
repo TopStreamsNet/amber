@@ -20,7 +20,7 @@ PLANT_FREQ = 3600
 PLANT_NUM = 1
 HARVEST_STAGE = 3
 TIMEOUT = 5
-MAX_SEEDS = 14
+MAX_SEEDS = 15 #Druidic Rite
 
 class State:
     WAIT, RUN, TERM = range(3)
