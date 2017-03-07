@@ -129,19 +129,19 @@ class ButcherBot(GobSelectCallback, Window):
         res = gob.getres()
         if(res != None):
             HavenPanel.lui.cons.out.println("gob selected: {0}".format(res.name))
-            if(res.name.startswith("gfx/kritter")):
+            if res.name.startswith("gfx/kritter") and gob not in self.bodies:
                 self.bodies.append(gob)
                 self.lbl_bodies.settext("{0}".format(len(self.bodies)))
-            elif(res.name.startswith("gfx/terobjs/stockpile-hide")):
+            elif res.name.startswith("gfx/terobjs/stockpile-hide") and gob not in self.hidepiles:
                 self.hidepiles.append(gob)
                 self.lbl_hidepiles.settext("{0}".format(len(self.hidepiles)))
-            elif(res.name.startswith("gfx/terobjs/stockpile-trash")):
+            elif res.name.startswith("gfx/terobjs/stockpile-trash") and gob not in self.trashpiles:
                 self.trashpiles.append(gob)
                 self.lbl_trashpiles.settext("{0}".format(len(self.trashpiles)))
-            elif(res.name.startswith("gfx/terobjs/cupboard")):
+            elif res.name.startswith("gfx/terobjs/cupboard") and gob not in self.cupboards:
                 self.cupboards.append(gob)
                 self.lbl_cupboards.settext("{0}".format(len(self.cupboards)))
-            elif(res.name.startswith("gfx/terobjs/stockpile-bone")):
+            elif res.name.startswith("gfx/terobjs/stockpile-bone") and gob not in self.bonepiles:
                 self.bonepiles.append(gob)
                 self.lbl_bonepiles.settext("{0}".format(len(self.bonepiles)))
 
