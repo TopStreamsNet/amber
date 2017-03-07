@@ -876,6 +876,11 @@ public class ChatUI extends Widget {
                         Audio.play(alarmsfx, Config.chatalarmvol);
                         lastmsg = time;
                     }
+
+                    /*if (this.msgcallback != null){
+                        this.msgcallback(buddy != null ? buddy.name : "???", line);
+                    }*/
+
                 } else if (t.equals("out")) {
                     OutMessage om = new OutMessage(line, iw());
                     append(om);
