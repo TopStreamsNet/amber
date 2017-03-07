@@ -2,19 +2,32 @@ import haven.HavenPanel as HavenPanel
 import haven.GameUI as GameUI
 import haven.Coord as Coord
 import haven.OCache as OCache
+import haven.Label as Label
+import haven.ItemInfo as ItemInfo
+import haven.GItem as GItem
 
 from synchronize import make_synchronized
 from time import sleep
+import re
 
 @make_synchronized
 def gettilegobs(oc,coord):
     gobs = []
     for gob in oc:
-        res = gob.getres()
+        try:
+            res = gob.getres()
+        except:
+            continue
         dist = gob.rc.dist(coord)
         if res != None and dist < 1:
             gobs.append(gob)
     return gobs
+
+@make_synchronized
+def gobexists(oc,gob):
+    if (oc.getgob(gob.id) != None):
+        return True
+    return False
 
 def getfreeslot(item, inventory):
     gui = HavenPanel.lui.root.getchild(GameUI)
@@ -91,3 +104,25 @@ def itemactgob(gob, shift=0, waitforemptyhand = False, timeout=-1, fallbackcoord
                 return False
     return True
 
+def fallbackonfail(failcond, fallbackcoord):
+    gui = HavenPanel.lui.root.getchild(GameUI)
+    if failcond:
+        gui.map.pfLeftClick(fallbackcoord.mul(11).add(5,5), None)
+        gui.map.pfthread.join()
+    return failcond
+
+RE_CONTENTS_NMBR = re.compile("Contents: (\d+) (.*).")
+def getBarrelContent(brlwnd):
+    ret = {'quantity':0,'item':None}
+    brl_lbl = brlwnd.getchild(Label)
+    contStr = brl_lbl.gettexts()
+    if not(contStr.endswith("Empty.")):
+        rslt = RE_CONTENTS_NMBR.match(contStr)
+        ret['quantity'] = int(rslt.group(1))
+        ret['item'] = rslt.group(2)
+    return ret
+
+def getnum(stack):
+    iteminfo = stack.item.info()
+    ninf = ItemInfo.find(GItem.NumberInfo, iteminfo)
+    return ninf.itemnum()

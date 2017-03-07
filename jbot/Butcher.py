@@ -1,25 +1,23 @@
 import haven.Window as Window
-import haven.Coord as Coord
-import haven.HavenPanel as HavenPanel
-import haven.GameUI as GameUI
 import haven.Button as Button
-import haven.Label as Label
 import haven.FlowerMenu as FlowerMenu
-import haven.OCache as OCache
 import haven.automation.Utils as Utils
 import haven.automation.GobSelectCallback as GobSelectCallback
-import haven.automation.JythonAutomation as JythonAutomation
 import haven.ISBox as ISBox
+
+import JbotUtils
+reload(JbotUtils)
+from JbotUtils import *
 
 from time import sleep
 from synchronize import make_synchronized
 
 TIMEOUT = 5 # 5 seconds
-MAX_HIDES = 4 # 4 Maximum hides in inventory
-MAX_ENTRAILS = 3 # 3 Maximum entrails in inventory
-MAX_INTESTINES = 3 # 3 Maximum intestines in inventory
-MAX_MEAT = 3 # 3 Maximum meat in inventory
-MAX_BONES = 3 # 3 Maximum meat in inventory
+MAX_HIDES = 0 # 4 Maximum hides in inventory
+MAX_ENTRAILS = 0 # 3 Maximum entrails in inventory
+MAX_INTESTINES = 0 # 3 Maximum intestines in inventory
+MAX_MEAT = 0 # 3 Maximum meat in inventory
+MAX_BONES = 0 # 3 Maximum meat in inventory
 
 class State:
     WAIT, RUN, TERM = range(3)
@@ -49,17 +47,16 @@ class ClearButton(Button):
         HavenPanel.lui.cons.out.println("All Cleared!")
 
 @make_synchronized
-def pickdropped(oc, gui, bot):
+def finddropped(oc, gui):
+    HavenPanel.lui.cons.out.println("Pick dropped")
     gobs = []
     for gob in oc:
         res = gob.getres()
         dist = gob.rc.dist(gui.map.player().rc)
-        if res != None and dist < 22:
+        if res != None and dist < 11 and res.name.startswith("gfx/terobjs/items"):
+            HavenPanel.lui.cons.out.println("!!! {0}".format(res.name))
             gobs.append(gob)
-    for gob in gobs:
-        gui.map.pfRightClick(gob, -1, 3, 0, None)
-        gui.map.pfthread.join()
-        bot.checkbones(MAX_BONES)
+    return gobs
 			
 class ButcherBot(GobSelectCallback, Window):
     state = State.WAIT
@@ -116,15 +113,13 @@ class ButcherBot(GobSelectCallback, Window):
     def wdgmsg(self, sender, msg, *args):
         if sender == self.cbtn:
             self.die()
-        else:
-            Window.wdgmsg(self,sender, msg, args)
 
     def type(self, key, ev):
         if (key == 27):
             if (self.cbtn.visible):
                 self.die()
                 return True
-        return Window.type(self,key, ev)
+        return False
 
     def die(self):
         self.reqdestroy()
@@ -150,12 +145,6 @@ class ButcherBot(GobSelectCallback, Window):
                 self.bonepiles.append(gob)
                 self.lbl_bonepiles.settext("{0}".format(len(self.bonepiles)))
 
-    @make_synchronized
-    def checkbody(self, body, oc):
-        # check if this body is still around
-        if (oc.getgob(body.id) != None):
-            return True
-        return False
 
     def workonbody(self,body):
         HavenPanel.lui.cons.out.println("Working on body: {0}".format(body))
@@ -176,11 +165,21 @@ class ButcherBot(GobSelectCallback, Window):
                 HavenPanel.lui.cons.out.println("Going to Skin {0}".format(body))
                 flowermenu.choose(flowermenu.opts[i])
                 Utils.waitForProgressFinish(self.gui,60000,"Stuck in Skinning")
+                self.checkhides(MAX_HIDES)
                 break
             elif flowermenu.opts[i].name == "Butcher":
                 HavenPanel.lui.cons.out.println("Going to Butcher {0}".format(body))
                 flowermenu.choose(flowermenu.opts[i])
                 Utils.waitForProgressFinish(self.gui,60000,"Stuck in Butchering")
+                sleep(1)
+                gobs = finddropped(self.gui.map.glob.oc, self.gui)
+                self.checkintestines(MAX_INTESTINES)
+                self.checkentrails(MAX_ENTRAILS)
+                self.checkmeat(MAX_MEAT)
+                for gob in gobs:
+                    self.gui.map.pfRightClick(gob, -1, 3, 0, None)
+                    self.gui.map.pfthread.join()
+                self.checkbones(MAX_BONES)
                 break
 
     def checkhides(self, max_hides):
@@ -317,7 +316,7 @@ class ButcherBot(GobSelectCallback, Window):
 
     def checkmeat(self, max_meat):
         meat_num = self.gui.maininv.getItemPartialCount("Raw")
-        while meat_num >= MAX_MEAT:
+        while meat_num > MAX_MEAT:
             HavenPanel.lui.cons.out.println("Have meat {0}".format(meat_num))
             for cupboard in self.cupboards:
                 self.gui.map.pfRightClick(cupboard, -1, 3, 0, None)
@@ -343,21 +342,11 @@ class ButcherBot(GobSelectCallback, Window):
                 if len(self.bodies) == 0:
                     return
                 for body in self.bodies:
-                    if self.checkbody(body, self.gui.map.glob.oc):
+                    while gobexists(self.gui.map.glob.oc, body):
                         self.workonbody(body)
-                    else:
-                        HavenPanel.lui.cons.out.println("{0} body is gone, marked for removal".format(body))
-                        gone.append(body)
-                    self.checkhides(MAX_HIDES)
-                    self.checkintestines(MAX_INTESTINES)
-                    self.checkentrails(MAX_ENTRAILS)
-                    self.checkmeat(MAX_MEAT)
+                    gone.append(body)
                 for body in gone:
                     self.bodies.remove(body)
-                    # move to where Gob should have been
-                    self.gui.map.pfLeftClick(body.rc.floor(), None)
-                    self.gui.map.pfthread.join()
-                    pickdropped(self.gui.map.glob.oc, self.gui, self)
                 self.checkhides(0)
                 self.checkintestines(0)
                 self.checkentrails(0)
