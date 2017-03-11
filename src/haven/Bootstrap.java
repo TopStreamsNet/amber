@@ -27,7 +27,6 @@
 package haven;
 
 import java.net.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class Bootstrap implements UI.Receiver, UI.Runner {

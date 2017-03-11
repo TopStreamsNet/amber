@@ -26,10 +26,7 @@
 
 package haven;
 
-import java.awt.*;
 import java.util.*;
-
-import haven.automation.JythonAutomation;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;

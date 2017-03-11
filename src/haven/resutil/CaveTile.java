@@ -29,7 +29,6 @@ package haven.resutil;
 import java.util.*;
 
 import haven.*;
-import haven.Resource.Tile;
 import haven.MapMesh.Scan;
 import haven.Surface.Vertex;
 

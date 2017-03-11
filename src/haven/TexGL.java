@@ -28,10 +28,8 @@ package haven;
 
 import haven.glsl.*;
 
-import java.awt.Color;
 import java.util.*;
-import java.awt.image.*;
-import java.nio.*;
+
 import com.jogamp.opengl.*;
 
 import static haven.GOut.checkerr;

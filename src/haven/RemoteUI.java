@@ -57,12 +57,14 @@ public class RemoteUI implements UI.Receiver, UI.Runner {
             PMessage msg;
             synchronized (ui) {
                 while ((msg = sess.getuimsg()) != null) {
+                    System.out.format("RelMsg %d\r\n", msg.type);
                     if (msg.type == RMessage.RMSG_NEWWDG) {
                         int id = msg.uint16();
                         String type = msg.string();
                         int parent = msg.uint16();
                         Object[] pargs = msg.list();
                         Object[] cargs = msg.list();
+                        System.out.format("NewWdg %d %s\r\n", id, type);
                         ui.newwidget(id, type, parent, pargs, cargs);
                     } else if (msg.type == RMessage.RMSG_WDGMSG) {
                         int id = msg.uint16();

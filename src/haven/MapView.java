@@ -76,6 +76,7 @@ public class MapView extends PView implements DTarget, Console.Directory, PFList
     public AreaMine areamine;
     private GobSelectCallback gobselcb;
     private AreaSelectCallback areaselcb;
+    private PrivMsgCallback privmsgcb;
     private Pathfinder pf;
     public Thread pfthread;
     public SteelRefueler steelrefueler;
@@ -2398,5 +2399,17 @@ public class MapView extends PView implements DTarget, Console.Directory, PFList
             }
         } catch (Loading l) {
         }
+    }
+
+    public PrivMsgCallback getprivmsgcb() {
+        return privmsgcb;
+    }
+
+    public void registerprivmsgcb(PrivMsgCallback privmsgcb) {
+        this.privmsgcb = privmsgcb;
+    }
+
+    public void unregisterprivmsgcb() {
+        this.privmsgcb = null;
     }
 }

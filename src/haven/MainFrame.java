@@ -33,8 +33,6 @@ import java.util.*;
 
 import haven.automation.ConsoleInterface;
 
-import java.lang.reflect.*;
-
 
 public class MainFrame extends java.awt.Frame implements Runnable, Console.Directory {
     HavenPanel p;

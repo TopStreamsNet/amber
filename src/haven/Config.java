@@ -31,7 +31,6 @@ import haven.error.ErrorHandler;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.net.URL;
@@ -587,6 +586,9 @@ public class Config {
         });
         Console.setscmd("jbot", (cons, args) -> {
             JythonAutomation.getInstance().start(args);
+        });
+        Console.setscmd("headless", (cons, args) -> {
+            JythonAutomation.getInstance().headless(args);
         });
     }
 }

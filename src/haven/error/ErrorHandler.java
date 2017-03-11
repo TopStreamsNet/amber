@@ -27,7 +27,6 @@
 package haven.error;
 
 import java.io.*;
-import java.net.*;
 import java.util.*;
 
 public class ErrorHandler extends ThreadGroup {

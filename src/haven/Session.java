@@ -32,6 +32,7 @@ import java.io.*;
 import java.lang.ref.*;
 
 import static haven.OCache.posres;
+import static haven.automation.Utils.bytesToHex;
 
 public class Session {
     public static final int PVER = 9;
@@ -892,6 +893,7 @@ public class Session {
 
     public void sendmsg(byte[] msg) {
         try {
+            System.out.println("SWorker: "+bytesToHex(msg));
             sk.send(new DatagramPacket(msg, msg.length, server));
         } catch (IOException e) {
         }

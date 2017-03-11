@@ -33,7 +33,6 @@ import haven.glsl.*;
 import haven.GLProgram.VarID;
 
 import static haven.glsl.Cons.*;
-import static haven.glsl.Function.PDir.*;
 import static haven.glsl.Type.*;
 
 public class ShadowMap extends GLState implements GLState.GlobalState, GLState.Global {

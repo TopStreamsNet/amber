@@ -3,15 +3,10 @@ package haven.automation;
 import org.python.util.PythonInterpreter;
 
 import haven.Config;
-import haven.GameUI;
 import haven.HavenPanel;
 
-import org.python.core.*;
-
-import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.Properties;
 
 
@@ -66,6 +61,14 @@ public class JythonAutomation implements Runnable {
         this.botname = args[1];
         this.jt = new Thread(JythonAutomation.getInstance(), "JBot thread");
         this.jt.start();
+    }
+
+    public void headless(String[] args){
+        if(args[1].equals("on")){
+            Config.headless=true;
+        }else{
+
+        }
     }
 
 }

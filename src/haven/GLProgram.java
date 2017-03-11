@@ -29,9 +29,6 @@ package haven;
 import java.util.*;
 import com.jogamp.opengl.*;
 
-import haven.GLShader.VertexShader;
-import haven.GLShader.FragmentShader;
-
 public class GLProgram implements java.io.Serializable {
     public final Collection<GLShader> shaders;
     private transient ProgOb glp;

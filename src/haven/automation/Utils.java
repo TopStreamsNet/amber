@@ -2,6 +2,8 @@ package haven.automation;
 
 import haven.*;
 
+import java.util.Formatter;
+
 
 public class Utils {
     private static final int HAND_DELAY = 5;
@@ -99,5 +101,35 @@ public class Utils {
                     break;
             } while (gui.prog >= 0);
         }
+    }
+
+    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
+    public static String prettyHexView(byte[] ba) {
+        StringBuilder sb = new StringBuilder();
+        Formatter formatter = new Formatter(sb);
+        for (int j = 1; j < ba.length+1; j++) {
+            if (j % 8 == 1 || j == 0) {
+                if( j != 0){
+                    sb.append("\n");
+                }
+                formatter.format("0%d\t|\t", j / 8);
+            }
+            formatter.format("%02X", ba[j-1]);
+            if (j % 4 == 0) {
+                sb.append(" ");
+            }
+        }
+        sb.append("\n");
+        return sb.toString();
     }
 }

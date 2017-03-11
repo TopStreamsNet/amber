@@ -33,9 +33,6 @@ import java.io.*;
 import java.net.*;
 import java.security.*;
 
-import haven.Composited.MD;
-import haven.Composited.ED;
-
 public class Server extends Thread {
     public static final Map<String, Command> commands = new HashMap<String, Command>();
     private final ServerSocket sk;

@@ -30,6 +30,9 @@ import java.io.*;
 import java.net.*;
 import java.security.MessageDigest;
 
+import static haven.automation.Utils.bytesToHex;
+import static haven.automation.Utils.prettyHexView;
+
 public class AuthClient {
     private static final SslHelper ssl;
     private Socket sk;
@@ -119,6 +122,8 @@ public class AuthClient {
         buf[0] = (byte) ((msg.size() & 0xff00) >> 8);
         buf[1] = (byte) (msg.size() & 0x00ff);
         msg.fin(buf, 2);
+        new Throwable().printStackTrace();
+        System.out.println("AuthClient: "+bytesToHex(buf));
         skout.write(buf);
     }
 

@@ -98,7 +98,7 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
 
     def gobselect(self, gob):
         res = gob.getres()
-        if(res != None):
+        if(res is not None):
             HavenPanel.lui.cons.out.println("gob selected: {0}".format(res.name))
             if res.name.startswith("gfx/terobjs/barrel") and gob not in self.seedbarrels_gobs:
                 self.seedbarrels_gobs.append(gob)
@@ -122,7 +122,7 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
                 rd = gob.getattr(ResDrawable)
                 stage = 0
                 stgmaxval = 0
-                if rd != None:
+                if rd is not None:
                     stage = rd.sdt.peekrbuf(0)
                     for layer in res.layers(MeshRes):
                         stg = layer.id / 10
@@ -186,12 +186,12 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
             self.gui.map.pfthread.join()
             brlwnd = self.gui.waitfForWnd("Barrel", 1500)
             # If it didn't work move and try again
-            if fallbackonfail((brlwnd == None),Coord(self.TopLeft.x+self.field_length/2,self.TopLeft.y+self.field_width/2)):
+            if fallbackonfail((brlwnd is None),Coord(self.TopLeft.x+self.field_length/2,self.TopLeft.y+self.field_width/2)):
                 self.gui.map.pfRightClick(barrel, -1, 3, 0, None)
                 self.gui.map.pfthread.join()
                 brlwnd = self.gui.waitfForWnd("Barrel", 1500)
             # If this barrel still can not be open - go next
-            if brlwnd == None:
+            if brlwnd is None:
                 continue
             brlInfo = getBarrelContent(brlwnd)
             quality = 0
@@ -226,19 +226,20 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
 
     def sortseeds(self):
         for seeds in self.gui.maininv.getItemsPartial("seed"):
+            HavenPanel.lui.cons.out.println("sorting {0}".format(seeds));
             seedquality = seeds.item.quality().q
             seednum = getnum(seeds)
             trash = None
             for barrelInfo in sorted(self.barrelsInfo.items(), key=lambda x: x[1]['quality'], reverse=True):
                 (barrel, info) = barrelInfo
                 if seedquality >= info['quality']:
-                    if takeitem(seeds,TIMEOUT):
+                    if takeitem(seeds,TIMEOUT) is not None:
                         itemactgob(barrel,0,True,TIMEOUT,Coord(self.TopLeft.x+self.field_length/2,self.TopLeft.y+self.field_width/2))
                         self.barrelsInfo[barrel]['quantity'] += seednum
                     break
                 trash = barrel
-            if trash != None:
-                if takeitem(seeds,TIMEOUT):
+            if trash is not None:
+                if takeitem(seeds,TIMEOUT) is not None:
                     itemactgob(trash,0,True,TIMEOUT,Coord(self.TopLeft.x+self.field_length/2,self.TopLeft.y+self.field_width/2))
                     self.barrelsInfo[trash]['quantity'] += seednum
         self.barrelsInfo_dirty = True
@@ -288,11 +289,11 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
             if info['quality'] > topq:
                 if info['quantity'] >= 5:
                     tmpseeds = self.getseedsfrombarrel(barrel)
-                    if(tmpseeds != None):
+                    if(tmpseeds is not None):
                         topq = tmpseeds.item.quality().q
                         topseeds = tmpseeds
                     break
-        if topseeds != None:
+        if topseeds is not None:
             takeitem(topseeds, TIMEOUT)
         '''
         else:
@@ -304,7 +305,7 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
         self.gui.map.pfRightClick(harvestable, -1, 3, 0, None)
         self.gui.map.pfthread.join()
         tout = 0
-        while HavenPanel.lui.root.getchild(FlowerMenu) == None and self.state == State.RUN:
+        while HavenPanel.lui.root.getchild(FlowerMenu) is None and self.state == State.RUN:
             sleep(1)
             tout += 1
             if tout > TIMEOUT:
@@ -313,7 +314,7 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
             self.gui.map.pfRightClick(harvestable, -1, 3, 0, None)
             self.gui.map.pfthread.join()
             tout = 0
-            while HavenPanel.lui.root.getchild(FlowerMenu) == None and self.state == State.RUN:
+            while HavenPanel.lui.root.getchild(FlowerMenu) is None and self.state == State.RUN:
                 sleep(1)
                 tout += 1
                 if tout > TIMEOUT:
@@ -353,9 +354,12 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
         self.gui.map.registerAreaSelect(self)
         while self.state != State.TERM:
             if self.state == State.RUN:
+
                 if self.barrelsInfo_dirty == True:
                     self.getBarrelInfo()
+
                 [ability, tile, coord] = self.check_next_tile()
+                print("Next action: {0} tile: {1} coord: {2}".format(ability, tile, coord))
                 if ability == "CanPlant" and self.shouldplant() == True and self.takeseed() == True:
                     HavenPanel.lui.cons.out.println("Next action: {0} tile: {1} coord: {2}".format(ability, tile, coord))
                     self.plant(tile, Coord2d(coord))
@@ -366,6 +370,7 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
                 if self.gui.maininv.getItemPartialCount("seed") > MAX_SEEDS:
                     HavenPanel.lui.cons.out.println("Sorting seeds!")
                     self.sortseeds()
+
             elif self.state == State.WAIT:
                 sleep(1)
 

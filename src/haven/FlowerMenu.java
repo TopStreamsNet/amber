@@ -48,6 +48,7 @@ public class FlowerMenu extends Widget {
             String[] opts = new String[args.length];
             for (int i = 0; i < args.length; i++)
                 opts[i] = (String) args[i];
+            new Throwable().printStackTrace();
             return (new FlowerMenu(opts));
         }
     }
@@ -193,6 +194,12 @@ public class FlowerMenu extends Widget {
         kg = ui.grabkeys(this);
         organize(opts);
         new Opening();
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        new Throwable().printStackTrace();
     }
 
     public boolean mousedown(Coord c, int button) {

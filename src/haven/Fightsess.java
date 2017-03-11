@@ -27,7 +27,6 @@
 package haven;
 
 import java.awt.*;
-import java.text.DecimalFormat;
 import java.util.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.InputEvent;

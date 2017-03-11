@@ -28,9 +28,7 @@ package haven.glsl;
 
 import haven.*;
 import static haven.glsl.Cons.*;
-import static haven.glsl.Function.PDir.*;
 import static haven.glsl.Type.*;
-import haven.glsl.ValBlock.Value;
 
 public class BaseColor implements ShaderMacro {
     public static final InstancedUniform u_color = new InstancedUniform.Vec4("color", States.color) {

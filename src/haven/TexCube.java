@@ -26,9 +26,7 @@
 
 package haven;
 
-import java.awt.Color;
 import java.awt.image.*;
-import java.util.*;
 import java.nio.*;
 import com.jogamp.opengl.*;
 

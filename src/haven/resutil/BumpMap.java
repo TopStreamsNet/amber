@@ -32,8 +32,6 @@ import haven.glsl.*;
 import static haven.glsl.Cons.*;
 import static haven.glsl.Type.*;
 
-import haven.MapMesh.Scan;
-
 import java.util.*;
 import java.nio.FloatBuffer;
 import com.jogamp.opengl.*;

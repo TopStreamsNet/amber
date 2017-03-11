@@ -33,7 +33,6 @@ import haven.glsl.*;
 
 import static haven.glsl.Cons.*;
 
-import haven.Resource.Tile;
 import haven.MapMesh.Scan;
 import haven.Surface.Vertex;
 import haven.Surface.MeshVertex;

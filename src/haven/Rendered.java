@@ -26,7 +26,6 @@
 
 package haven;
 
-import java.util.Comparator;
 import java.util.List;
 import com.jogamp.opengl.*;
 

@@ -28,7 +28,6 @@ package haven;
 
 import java.util.*;
 import java.nio.*;
-import java.lang.ref.*;
 
 public class MorphedMesh extends FastMesh {
     private static Map<Morpher.Factory, Collection<MorphedBuf>> bufs = new CacheMap<Morpher.Factory, Collection<MorphedBuf>>(CacheMap.RefType.WEAK);

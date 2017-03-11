@@ -26,7 +26,6 @@
 
 package haven;
 
-import com.jogamp.opengl.util.GLReadBufferUtil;
 import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
 
 import java.awt.GraphicsConfiguration;
@@ -527,6 +526,9 @@ public class HavenPanel extends GLCanvas implements Runnable, Console.Directory 
                     drawfun.notifyAll();
                 }
                 while (true) {
+                    if (Config.headless)
+                        break;
+
                     long then = System.currentTimeMillis();
                     int waited = 0;
                     Frame current;

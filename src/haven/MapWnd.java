@@ -35,7 +35,6 @@ import haven.MapFile.Marker;
 import haven.MapFile.PMarker;
 import haven.MapFile.SMarker;
 import haven.MapFileWidget.*;
-import haven.MapFileWidget.Location;
 import haven.BuddyWnd.GroupSelector;
 
 import static haven.MCache.tilesz;

@@ -26,6 +26,8 @@
 
 package haven;
 
+import haven.automation.PrivMsgCallback;
+
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -146,6 +148,7 @@ public class ChatUI extends Widget {
         private final Scrollbar sb;
         public final IButton cb;
         public int urgency = 0;
+        protected PrivMsgCallback msgcallback;
 
         public static abstract class Message {
             public abstract Text text();
@@ -877,9 +880,9 @@ public class ChatUI extends Widget {
                         lastmsg = time;
                     }
 
-                    /*if (this.msgcallback != null){
-                        this.msgcallback(buddy != null ? buddy.name : "???", line);
-                    }*/
+                    if (getparent(GameUI.class).map.getprivmsgcb() != null){
+                        getparent(GameUI.class).map.getprivmsgcb().privmsg(buddy != null ? buddy.name : "???", line);
+                    }
 
                 } else if (t.equals("out")) {
                     OutMessage om = new OutMessage(line, iw());
