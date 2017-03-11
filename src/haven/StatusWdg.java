@@ -48,7 +48,7 @@ public class StatusWdg extends Widget {
             }
 
             Matcher matcher = pattern.matcher(output);
-            while (matcher.find()) {
+            if (matcher.find()) {
                 ping = matcher.group(1);
             }
         } catch (IOException ex) {

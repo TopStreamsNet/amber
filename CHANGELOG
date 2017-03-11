@@ -1,3 +1,28 @@
+Version 1.55.2
+    Fixed:
+        * F-key bar related crashes yet again.
+
+
+Version 1.55.1
+    Fixed:
+        * F-key bar related crashes.
+
+
+Version 1.55.0
+    New:
+        * Geolocation using odditown world map.
+		* Add buff icon for party permissions.
+
+    Fixed:
+        * Ping incorrectly displayed on Windows.
+		* Various F-key bar issues. 
+
+    Misc:
+		* Removed auto-logout option since it doesn't provide any benefits over auto-hearth anymore.
+		* Added yellowfoot and chives to icons list.
+		* Upstream code merge.
+
+
 Version 1.54.3
     Fixed:
         * Crime/tracking/swimming icons not showing.
