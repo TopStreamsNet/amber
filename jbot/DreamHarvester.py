@@ -31,7 +31,7 @@ class ClearButton(Button):
         self.parent.lbl_catchers.settext("0")
         self.parent.chests=[]
         self.parent.lbl_chests.settext("0")
-        self.parent.state = State.TERM
+        self.parent.state = State.WAIT
 
 class DreamHarvesterBot(GobSelectCallback, Window):
     lbl_catchers = None
@@ -63,10 +63,10 @@ class DreamHarvesterBot(GobSelectCallback, Window):
         res = gob.getres()
         if(res != None):
             print("gob selected: {0}".format(res.name))
-            if(res.name.startswith("gfx/terobjs/dreca")):
+            if res.name.startswith("gfx/terobjs/dreca") and gob not in self.catchers:
                 self.catchers.append(gob)
                 self.lbl_catchers.settext("{0}".format(len(self.catchers)))
-            elif(res.name.startswith("gfx/terobjs/chest")):
+            elif res.name.startswith("gfx/terobjs/cupboard") and gob not in self.chests:
                 self.chests.append(gob)
                 self.lbl_chests.settext("{0}".format(len(self.chests)))
 
@@ -91,97 +91,70 @@ class DreamHarvesterBot(GobSelectCallback, Window):
         self.reqdestroy()
         self.state = State.TERM
 
-# Our Automation
-with DreamHarvesterBot(Coord(270,180),"Dream Harvester Bot") as harvester:
-    gui = HavenPanel.lui.root.getchild(GameUI)
-    gui.map.registerGobSelect(harvester)
-    gui.add(harvester, Coord(gui.sz.x / 2 - harvester.sz.x / 2, gui.sz.y / 2 - harvester.sz.y / 2 - 200))
-    while harvester.state == State.WAIT:
-        print("Sleeping")
-        sleep(1)
-    while harvester.state == State.RUN:
-        for catcher in harvester.catchers:
-            print("Checking catcher: {0}".format(catcher))
-            HavenPanel.lui.root.getchild(GameUI).map.pfRightClick(catcher, -1, 3, 0, None)
-            HavenPanel.lui.root.getchild(GameUI).map.pfthread.join()
-            while HavenPanel.lui.root.getchild(FlowerMenu) is None and harvester.state == State.RUN:
-                print("Waiting for flowers!")
-                sleep(1)
-            if HavenPanel.lui.root.getchild(FlowerMenu) is not None:
-                print("Got Flowers! {0}".format(HavenPanel.lui.root.getchild(FlowerMenu)))
-                HavenPanel.lui.root.getchild(FlowerMenu).choose(None)
-                sleep(1)
-                if HavenPanel.lui.root.getchild(FlowerMenu) is not None:
-                    HavenPanel.lui.root.getchild(FlowerMenu).destroy()
-            sleep(5)
-
-    '''
-    gui = HavenPanel.lui.root.getchild(GameUI)
-    gui.add(harvester,Coord(gui.sz.x / 2 - harvester.sz.x / 2, gui.sz.y / 2 - harvester.sz.y / 2 - 200))
-    HavenPanel.lui.root.getchild(GameUI).map.registerGobSelect(harvester)
-    while(JythonAutomation.getInstance().getRun() != True):
-        sleep(1)
-
-    while(JythonAutomation.getInstance().getTerminate() == False):
-        for catcher in harvester.catchers:
-            print("Checking catcher: {0}".format(catcher))
-            # RightClick the body and see what comes out
-            HavenPanel.lui.root.getchild(GameUI).map.pfRightClick(catcher, -1, 3, 0, None)
-            HavenPanel.lui.root.getchild(GameUI).map.pfthread.join()
-            # Wait for choices
-            t1 = time()
-            while HavenPanel.lui.root.getchild(FlowerMenu) == None:
-                print("Waiting for flowers!")
-                sleep(1)
-                if (time() - t1) > 5:
-                    print("No flowers - go to sleep!")
-                    sleep(600)
-                    HavenPanel.lui.root.getchild(GameUI).map.pfRightClick(catcher, -1, 3, 0, None)
-                    HavenPanel.lui.root.getchild(GameUI).map.pfthread.join()
-                    t1 = time()
-            flowermenu = HavenPanel.lui.root.getchild(FlowerMenu)
-            for i in range(len(flowermenu.opts)):
-                print("{0} {1}".format(i,flowermenu.opts[i]))
-                if flowermenu.opts[i].name == "Harvest":
-                    print("Going to Harvest {0}".format(catcher))
-                    break
-                    dreams_num_orig = gui.maininv.getItemPartialCount("Beautiful Dream")
-                    flowermenu.choose(flowermenu.opts[i])
-                    t1 = time()
-                    while(dreams_num_orig >= gui.maininv.getItemPartialCount("Beautiful Dream")):
-                        print("Waiting for dreams!")
-                        sleep(1)
-                        if (time() - t1) > 5:
-                            break
-                    break
-            dreams_num = gui.maininv.getItemPartialCount("Beautiful Dream")
-            while (dreams_num >= 12):
-                print("Have dreams {0}".format(dreams_num))
-                for chest in harvester.chests:
-                    HavenPanel.lui.root.getchild(GameUI).map.pfRightClick(chest, -1, 3, 0, None)
-                    HavenPanel.lui.root.getchild(GameUI).map.pfthread.join()
-                    spwnd = gui.waitfForWnd("Chest", 1500);
-                    if spwnd == None:
-                        continue
-                    dream = gui.maininv.getItemPartial("Beautiful Dream")
-                    dream.item.wdgmsg("transfer-identical", dream.item)
-                    dreams_num_orig = gui.maininv.getItemPartialCount("Beautiful Dream")
-                    t1 = time()
-                    while(dreams_num_orig == gui.maininv.getItemPartialCount("Beautiful Dream")):
-                        print("Waiting for dreams to be gone!")
-                        sleep(1)
-                        if (time() - t1) > 5:
-                            break
-                    dreams_num = gui.maininv.getItemPartialCount("Beautiful Dream")
-                    if dreams_num == 0:
+    def run(self):
+        self.gui = HavenPanel.lui.root.getchild(GameUI)
+        self.gui.add(self,Coord(self.gui.sz.x / 2 - self.sz.x / 2, self.gui.sz.y / 2 - self.sz.y / 2 - 200))
+        self.gui.map.registerGobSelect(self)
+        while self.state != State.TERM:
+            if self.state == State.RUN:
+                harvest = 0
+                for catcher in self.catchers:
+                    if self.state != State.RUN:
                         break
-    '''
+                    print("Checking catcher: {0}".format(catcher))
+                    self.gui.map.pfRightClick(catcher, -1, 3, 0, None)
+                    self.gui.map.pfthread.join()
+                    t1 = time()
+                    while HavenPanel.lui.root.getchild(FlowerMenu) is None:
+                        print("Waiting for flowers!")
+                        sleep(1)
+                        if (time() - t1) > 5:
+                            break
+                    flowermenu = HavenPanel.lui.root.getchild(FlowerMenu)
+                    if flowermenu is None:
+                        continue
+                    harvest += 1
+                    for i in range(len(flowermenu.opts)):
+                        print("{0} {1}".format(i,flowermenu.opts[i]))
+                        if flowermenu.opts[i].name == "Harvest":
+                            print("Going to Harvest {0}".format(catcher))
+                            dreams_num_orig = self.gui.maininv.getItemPartialCount("Beautiful Dream")
+                            flowermenu.choose(flowermenu.opts[i])
+                            t1 = time()
+                            while(dreams_num_orig >= self.gui.maininv.getItemPartialCount("Beautiful Dream")):
+                                print("Waiting for dreams!")
+                                sleep(1)
+                                if (time() - t1) > 5:
+                                    break
+                            break
+                    dreams_num = self.gui.maininv.getItemPartialCount("Beautiful Dream")
+                    while (dreams_num >= 12):
+                        print("Have dreams {0}".format(dreams_num))
+                        for chest in self.chests:
+                            self.gui.map.pfRightClick(chest, -1, 3, 0, None)
+                            self.gui.map.pfthread.join()
+                            cwnd = self.gui.waitfForWnd("Cupboard", 1500)
+                            if cwnd is None:
+                                continue
+                            dream = self.gui.maininv.getItemPartial("Beautiful Dream")
+                            dreams_num_orig = self.gui.maininv.getItemPartialCount("Beautiful Dream")
+                            dream.item.wdgmsg("transfer-identical", dream.item)
+                            t1 = time()
+                            while(dreams_num_orig == self.gui.maininv.getItemPartialCount("Beautiful Dream")):
+                                print("Waiting for dreams to be gone!")
+                                sleep(1)
+                                if (time() - t1) > 5:
+                                    break
+                            dreams_num = self.gui.maininv.getItemPartialCount("Beautiful Dream")
+                            if dreams_num == 0:
+                                break
+                if harvest == 0:
+                    print("Sleep for 10 minutes...")
+                    sleep(600)
+            elif self.state == State.WAIT:
+                sleep(1)
 
 
-
-
-
-
-
-
-
+# Our Automation
+with DreamHarvesterBot(Coord(270,180),"Dream Harvester Bot") as bot:
+    bot.run()
