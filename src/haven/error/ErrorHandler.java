@@ -26,17 +26,12 @@
 
 package haven.error;
 
+import haven.Config;
+
 import java.io.*;
 import java.util.*;
 
 public class ErrorHandler extends ThreadGroup {
-    private static final String[] sysprops = {
-            "java.version",
-            "java.vendor",
-            "os.name",
-            "os.arch",
-            "os.version",
-    };
     private final ThreadGroup initial;
     private Map<String, Object> props = new HashMap<String, Object>();
     private Reporter reporter;
@@ -83,16 +78,14 @@ public class ErrorHandler extends ThreadGroup {
         }
 
         private void doreport(Report r) throws IOException {
-            if (!status.goterror(r.t))
+            if (!status.goterror(r))
                 return;
             status.done(null, null);
         }
 
-        public void report(Thread th, Throwable t) {
+        public void report(Throwable t) {
             Report r = new Report(t);
             r.props.putAll(props);
-            r.props.put("thnm", th.getName());
-            r.props.put("thcl", th.getClass().getName());
             synchronized (errors) {
                 errors.add(r);
                 errors.notifyAll();
@@ -104,25 +97,16 @@ public class ErrorHandler extends ThreadGroup {
     }
 
     private void defprops() {
-        for (String p : sysprops)
-            props.put(p, System.getProperty(p));
-        Runtime rt = Runtime.getRuntime();
-        props.put("cpus", rt.availableProcessors());
-        InputStream in = ErrorHandler.class.getResourceAsStream("/buildinfo");
-        try {
-            try {
-                if (in != null) {
-                    Properties info = new Properties();
-                    info.load(in);
-                    for (Map.Entry<Object, Object> e : info.entrySet())
-                        props.put("jar." + (String) e.getKey(), e.getValue());
-                }
-            } finally {
-                in.close();
-            }
-        } catch (IOException e) {
-            throw (new Error(e));
-        }
+        String os = System.getProperty("os.name");
+        String osVer = System.getProperty("os.version");
+        String osArch;
+        if (Config.iswindows)
+            osArch = (System.getenv("ProgramFiles(x86)") != null) ? " x64" : " x86";
+        else
+            osArch = ""; // ignore on Linux
+        props.put("os", os + " " + osVer + osArch);
+
+        props.put("java", System.getProperty("java.version") + " " + System.getProperty("os.arch"));
     }
 
     public ErrorHandler(ErrorStatus ui) {
@@ -142,6 +126,6 @@ public class ErrorHandler extends ThreadGroup {
     }
 
     public void uncaughtException(Thread t, Throwable e) {
-        reporter.report(t, e);
+        reporter.report(e);
     }
 }

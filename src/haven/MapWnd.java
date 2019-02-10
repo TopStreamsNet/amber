@@ -58,7 +58,7 @@ public class MapWnd extends Window {
     private int markerseq = -1;
     private boolean domark = false;
     private final Collection<Runnable> deferred = new LinkedList<>();
-    private static final Tex plx = Text.renderstroked("\u2716",  Color.red, Color.BLACK, LocalMiniMap.bld12fnd).tex();
+    private static final Tex plx = Text.renderstroked("\u2716",  Color.red, Color.BLACK, Text.num12boldFnd).tex();
     private  Predicate<Marker> filter = (m -> true);
     private final static Comparator<Marker> namecmp = ((a, b) -> a.nm.compareTo(b.nm));
 
@@ -233,7 +233,7 @@ public class MapWnd extends Window {
         }
     }
 
-    public static final Color every = new Color(255, 255, 255, 16), other = new Color(255, 255, 255, 32);
+    public static final Color every = new Color(255, 255, 255, 16), other = new Color(255, 255, 255, 32), found = new Color(255, 255, 0, 32);
 
     private static final Pair[] filters = new Pair[] {
             new Pair<>("-- All --", null),
@@ -242,6 +242,7 @@ public class MapWnd extends Window {
             new Pair<>("Ancient Windthrow", "windthrow"),
             new Pair<>("Clay Pit", "claypit"),
             new Pair<>("Crystal Rock", "crystalpatch"),
+            new Pair<>("Fairy Stone", "fairystone"),
             new Pair<>("Geyser", "geyser"),
             new Pair<>("Great Cave Organ", "caveorgan"),
             new Pair<>("Guano Pile", "guanopile"),
@@ -293,7 +294,7 @@ public class MapWnd extends Window {
         return modes;
     }
 
-    public class MarkerList extends Listbox<Marker> {
+    public class MarkerList extends Searchbox<Marker> {
         private final Text.Foundry fnd = CharWnd.attrf;
 
         public Marker listitem(int idx) {
@@ -303,6 +304,7 @@ public class MapWnd extends Window {
         public int listitems() {
             return (markers.size());
         }
+        public boolean searchmatch(int idx, String txt) {return(markers.get(idx).nm.toLowerCase().indexOf(txt.toLowerCase()) >= 0);}
 
         public MarkerList(int w, int n) {
             super(w, n, 20);
@@ -314,6 +316,10 @@ public class MapWnd extends Window {
         }
 
         public void drawitem(GOut g, Marker mark, int idx) {
+            if(soughtitem(idx)) {
+                g.chcolor(found);
+                g.frect(Coord.z, g.sz);
+            }
             g.chcolor(((idx % 2) == 0) ? every : other);
             g.frect(Coord.z, g.sz);
             if (mark instanceof PMarker)
@@ -356,6 +362,7 @@ public class MapWnd extends Window {
                             mark.nm = text;
                             view.file.update(mark);
                             commit();
+                            change2(null);
                         }
                     });
                 }
@@ -419,11 +426,13 @@ public class MapWnd extends Window {
     }
 
     public boolean keydown(KeyEvent ev) {
+        if (super.keydown(ev))
+            return (true);
         if (ev.getKeyCode() == KeyEvent.VK_HOME) {
             recenter();
             return (true);
         }
-        return (super.keydown(ev));
+        return (false);
     }
 
     private UI.Grab drag;
@@ -463,7 +472,7 @@ public class MapWnd extends Window {
     public void markobj(long gobid, long oid, Indir<Resource> resid, String nm) {
         synchronized (deferred) {
             deferred.add(new Runnable() {
-                long f = 0;
+                double f = 0;
 
                 public void run() {
                     Resource res = resid.get();
@@ -474,12 +483,12 @@ public class MapWnd extends Window {
                             return;
                         rnm = tt.t;
                     }
-                    long now = System.currentTimeMillis();
+                    double now = Utils.rtime();
                     if (f == 0)
                         f = now;
                     Gob gob = ui.sess.glob.oc.getgob(gobid);
                     if (gob == null) {
-                        if (now - f < 1000)
+                        if (now - f < 1.0)
                             throw (new Loading());
                         return;
                     }

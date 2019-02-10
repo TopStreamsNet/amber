@@ -57,7 +57,7 @@ public class RemoteUI implements UI.Receiver, UI.Runner {
             PMessage msg;
             synchronized (ui) {
                 while ((msg = sess.getuimsg()) != null) {
-                    System.out.format("RelMsg %d\r\n", msg.type);
+                    //System.out.format("RelMsg %d\r\n", msg.type);
                     if (msg.type == RMessage.RMSG_NEWWDG) {
                         int id = msg.uint16();
                         String type = msg.string();
@@ -73,6 +73,11 @@ public class RemoteUI implements UI.Receiver, UI.Runner {
                     } else if (msg.type == RMessage.RMSG_DSTWDG) {
                         int id = msg.uint16();
                         ui.destroy(id);
+                    } else if(msg.type == RMessage.RMSG_ADDWDG) {
+                        int id = msg.uint16();
+                        int parent = msg.uint16();
+                        Object[] pargs = msg.list();
+                        ui.addwidget(id, parent, pargs);
                     }
                 }
             }

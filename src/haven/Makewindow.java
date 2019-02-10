@@ -40,16 +40,20 @@ public class Makewindow extends Widget {
     int xoff = 45;
     private static final int qmy = 38, outy = 65;
     public static final Text.Foundry nmf = new Text.Foundry(Text.serif, 20).aa(true);
-    private int qModProduct = -1;
+    private long qModProduct = -1;
     private static final Tex softcapl = Text.render("Softcap:").tex();
     private Tex softcap;
 
     @RName("make")
     public static class $_ implements Factory {
-        public Widget create(Widget parent, Object[] args) {
+        public Widget create(UI ui, Object[] args) {
             return (new Makewindow((String) args[0]));
         }
     }
+
+    private static final OwnerContext.ClassResolver<Makewindow> ctxr = new OwnerContext.ClassResolver<Makewindow>()
+            .add(Glob.class, wdg -> wdg.ui.sess.glob)
+            .add(Session.class, wdg -> wdg.ui.sess);
 
     public class Spec implements GSprite.Owner, ItemInfo.SpriteOwner {
         public Indir<Resource> res;
@@ -63,7 +67,7 @@ public class Makewindow extends Widget {
             this.res = res;
             this.sdt = new MessageBuf(sdt);
             if (num >= 0)
-                this.num = new TexI(Utils.outline2(Text.render(Integer.toString(num), Color.WHITE,  Text.numfnd).img, Utils.contrast(Color.WHITE)));
+                this.num = new TexI(Utils.outline2(Text.render(Integer.toString(num), Color.WHITE,  Text.num10Fnd).img, Utils.contrast(Color.WHITE)));
             else
                 this.num = null;
             this.rawinfo = info;
@@ -78,6 +82,18 @@ public class Makewindow extends Widget {
             }
             if (num != null)
                 g.aimage(num, Inventory.sqsz, 1.0, 1.0);
+        }
+
+        private int opt = 0;
+        public boolean opt() {
+            if(opt == 0) {
+                try {
+                    opt = (ItemInfo.find(Optional.class, info()) != null) ? 1 : 2;
+                } catch(Loading l) {
+                    return(false);
+                }
+            }
+            return(opt == 1);
         }
 
         public BufferedImage shorttip() {
@@ -120,6 +136,11 @@ public class Makewindow extends Widget {
             return (res.get());
         }
 
+        public <T> T context(Class<T> cl) {
+            return (ctxr.context(cl, Makewindow.this));
+        }
+
+        @Deprecated
         public Glob glob() {
             return (ui.sess.glob);
         }
@@ -208,12 +229,24 @@ public class Makewindow extends Widget {
 
     public void draw(GOut g) {
         Coord c = new Coord(xoff, 0);
-        for (Spec s : inputs) {
+        boolean popt = false;
+        for(Spec s : inputs) {
+            boolean opt = s.opt();
+            if(opt != popt)
+                c = c.add(10, 0);
             GOut sg = g.reclip(c, Inventory.invsq.sz());
-            sg.image(Inventory.invsq, Coord.z);
+            if(opt) {
+                sg.chcolor(0, 255, 0, 255);
+                sg.image(Inventory.invsq, Coord.z);
+                sg.chcolor();
+            } else {
+                sg.image(Inventory.invsq, Coord.z);
+            }
             s.draw(sg);
             c = c.add(Inventory.sqsz.x, 0);
+            popt = opt;
         }
+
         if (qmod != null) {
             g.image(qmodl.tex(), new Coord(0, qmy + 4));
             c = new Coord(xoff, qmy);
@@ -258,14 +291,14 @@ public class Makewindow extends Widget {
             }
 
             if (Config.showcraftcap && qmodValues.size() > 0) {
-                int product = 1;
-                for (int cap : qmodValues)
+                long product = 1;
+                for (long cap : qmodValues)
                     product *= cap;
 
                 if (product != qModProduct) {
                     qModProduct = product;
                     softcap = Text.renderstroked("" + (int) Math.pow(product, 1.0 / qmodValues.size()),
-                            Color.WHITE, Color.BLACK, Glob.CAttr.capval).tex();
+                            Color.WHITE, Color.BLACK, Text.num12boldFnd).tex();
                 }
 
                 Coord sz = softcap.sz();
@@ -303,23 +336,27 @@ public class Makewindow extends Widget {
             } catch (Loading l) {
             }
         }
-        find:
-        {
+        find: {
             c = new Coord(xoff, 0);
-            for (Spec s : inputs) {
-                if (mc.isect(c, Inventory.invsq.sz())) {
+            boolean popt = false;
+            for(Spec s : inputs) {
+                boolean opt = s.opt();
+                if(opt != popt)
+                    c = c.add(10, 0);
+                if(mc.isect(c, Inventory.invsq.sz())) {
                     tspec = s;
                     break find;
                 }
-                c = c.add(31, 0);
+                c = c.add(Inventory.sqsz.x, 0);
+                popt = opt;
             }
             c = new Coord(xoff, outy);
-            for (Spec s : outputs) {
-                if (mc.isect(c, Inventory.invsq.sz())) {
+            for(Spec s : outputs) {
+                if(mc.isect(c, Inventory.invsq.sz())) {
                     tspec = s;
                     break find;
                 }
-                c = c.add(31, 0);
+                c = c.add(Inventory.sqsz.x, 0);
             }
         }
         if (lasttip != tspec) {
@@ -372,6 +409,17 @@ public class Makewindow extends Widget {
             return (true);
         }
         return (super.globtype(ch, ev));
+    }
+
+    public static class Optional extends ItemInfo.Tip {
+        public static final Text text = RichText.render("$i{Optional}", 0);
+        public Optional(Owner owner) {
+            super(owner);
+        }
+
+        public BufferedImage tipimg() {
+            return(text.img);
+        }
     }
 
     public static class MakePrep extends ItemInfo implements GItem.ColorInfo {

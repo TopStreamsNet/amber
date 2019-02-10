@@ -134,7 +134,7 @@ public class MinimapWnd extends Widget {
                     } catch (MalformedURLException e) {
                     }
                 } else {
-                    getparent(GameUI.class).error("Could not launch web browser.");
+                    getparent(GameUI.class).error("Unable to determine your current location.");
                 }
             }
 

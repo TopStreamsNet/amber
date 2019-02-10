@@ -42,7 +42,7 @@ public class MapMod extends Window implements MapView.Grabber {
 
     @RName("mapmod")
     public static class $_ implements Factory {
-        public Widget create(Widget parent, Object[] args) {
+        public Widget create(UI ui, Object[] args) {
             return (new MapMod());
         }
     }
@@ -135,6 +135,7 @@ public class MapMod extends Window implements MapView.Grabber {
         }
         if (sender == cbox) {
             walkmod = ((Integer) args[0]) != 0;
+            System.out.println("WALKMOD "+walkmod);
             if (!walkmod) {
                 mv.grab(grab);
             } else {

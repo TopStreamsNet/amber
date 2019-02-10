@@ -102,7 +102,7 @@ public class Utils {
             } while (gui.prog >= 0);
         }
     }
-
+    
     final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
@@ -131,5 +131,33 @@ public class Utils {
         }
         sb.append("\n");
         return sb.toString();
+    }
+    
+    public static WItem findItemByPrefixInInv(Inventory inv, String resNamePrefix) {
+        for (Widget wdg = inv.child; wdg != null; wdg = wdg.next) {
+            if (wdg instanceof WItem) {
+                WItem witm = ((WItem) wdg);
+                try {
+                    if (witm.item.getres().name.startsWith(resNamePrefix))
+                        return witm;
+                } catch (Loading l) {
+                }
+            }
+        }
+        return null;
+    }
+
+    public static WItem findItemInInv(Inventory inv, String resName) {
+        for (Widget wdg = inv.child; wdg != null; wdg = wdg.next) {
+            if (wdg instanceof WItem) {
+                WItem witm = ((WItem) wdg);
+                try {
+                    if (witm.item.getres().name.equals(resName))
+                        return witm;
+                } catch (Loading l) {
+                }
+            }
+        }
+        return null;
     }
 }

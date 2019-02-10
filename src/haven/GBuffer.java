@@ -26,6 +26,45 @@
 
 package haven;
 
-@Deprecated
-public interface WidgetFactory extends Widget.Factory {
+import java.awt.Color;
+import com.jogamp.opengl.*;
+
+public class GBuffer {
+    public final Coord sz;
+    public final TexGL buf;
+    public final GLFrameBuffer fbo;
+    private final GLState ostate;
+
+    public GBuffer(Coord sz) {
+	this.sz = sz;
+	buf = new TexE(sz, GL.GL_RGBA, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
+	fbo = new GLFrameBuffer(buf, null);
+	ostate = HavenPanel.OrthoState.fixed(sz);
+    }
+
+    public void clear(GOut g, Color col) {
+	g.state2d();
+	g.apply();
+	g.gl.glClearColor(col.getRed() / 255f, col.getGreen() / 255f,
+			  col.getBlue() / 255f, col.getAlpha() / 255f);
+	g.gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+    }
+
+    public GOut graphics(GOut from, GLState extra) {
+	GLState.Buffer basic = from.basicstate();
+	if(extra != null)
+	    extra.prep(basic);
+	ostate.prep(basic);
+	fbo.prep(basic);
+	return(new GOut(from.gl, from.curgl, from.gc, from.st, basic, sz));
+    }
+
+    public GOut graphics(GOut from) {
+	return(graphics(from, null));
+    }
+
+    public void dispose() {
+	fbo.dispose();
+	buf.dispose();
+    }
 }

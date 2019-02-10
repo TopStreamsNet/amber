@@ -31,12 +31,12 @@ public class AutoFire extends Window implements GobSelectCallback {
 
 		Label lblctxt = new Label("Fires Selected:", infof);
 		add(lblctxt, new Coord(15, 60));
-		lblf = new Label("0", countf, true);
+		lblf = new Label("0", countf);
 		add(lblf, new Coord(110, 58));
 
 		Label lblstxt = new Label("Stockpiles Selected:", infof);
 		add(lblstxt, new Coord(135, 60));
-		lbls = new Label("0", countf, true);
+		lbls = new Label("0", countf);
 		add(lbls, new Coord(235, 58));
 
 		clearbtn = new Button(140, "Clear Selection") {

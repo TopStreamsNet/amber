@@ -26,33 +26,29 @@
 
 package haven;
 
-import java.awt.Graphics;
+import java.util.concurrent.locks.*;
 
-/*
- * This is old and should be deprecated.
- */
-public class SSWidget extends Widget {
-    private TexIM surf;
+public class Locked implements AutoCloseable {
+    private final Lock lk;
+    private boolean held;
 
-    public SSWidget(Coord sz) {
-        super(sz);
-        surf = new TexIM(sz);
+    public Locked(Lock lk) {
+	(this.lk = lk).lock();
+	held = true;
     }
 
-    public void draw(GOut g) {
-        g.image(surf, Coord.z);
+    public void unlock() {
+	if(!held)
+	    throw(new IllegalStateException());
+	lk.unlock();
+	held = false;
     }
+    public void close() {unlock();}
 
-    public Graphics graphics() {
-        Graphics g = surf.graphics();
-        return (g);
-    }
-
-    public void update() {
-        surf.update();
-    }
-
-    public void clear() {
-        surf.clear();
+    protected void finalize() {
+	if(held) {
+	    System.err.println("warning: held lock finalized");
+	    lk.unlock();
+	}
     }
 }

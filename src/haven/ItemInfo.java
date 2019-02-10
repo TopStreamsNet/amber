@@ -26,19 +26,24 @@
 
 package haven;
 
+import haven.factories.*;
 import haven.res.ui.tt.ArmorFactory;
 import haven.res.ui.tt.WearFactory;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.function.*;
 import java.awt.image.BufferedImage;
 import java.awt.Graphics;
 
 public abstract class ItemInfo {
     public final Owner owner;
 
-    public interface Owner {
-        public Glob glob();
+    public interface Owner extends OwnerContext {
+        @Deprecated
+        public default Glob glob() {
+            return (context(Glob.class));
+        }
 
         public List<ItemInfo> info();
     }
@@ -51,33 +56,52 @@ public abstract class ItemInfo {
         public GSprite sprite();
     }
 
+    public static class Raw {
+        public final Object[] data;
+        public final double time;
+
+        public Raw(Object[] data, double time) {
+            this.data = data;
+            this.time = time;
+        }
+
+        public Raw(Object[] data) {
+            this(data, Utils.rtime());
+        }
+    }
+
     @Resource.PublishedCode(name = "tt", instancer = FactMaker.class)
     public static interface InfoFactory {
-        public ItemInfo build(Owner owner, Object... args);
+        public default ItemInfo build(Owner owner, Raw raw, Object... args) {
+            return(build(owner, args));
+        }
+        @Deprecated
+        public default ItemInfo build(Owner owner, Object... args) {
+            throw(new AbstractMethodError("info factory missing either build bmethod"));
+        }
     }
 
     public static class FactMaker implements Resource.PublishedCode.Instancer {
         public InfoFactory make(Class<?> cl) throws InstantiationException, IllegalAccessException {
-            if (InfoFactory.class.isAssignableFrom(cl))
-                return (cl.asSubclass(InfoFactory.class).newInstance());
+            if(InfoFactory.class.isAssignableFrom(cl))
+                return(cl.asSubclass(InfoFactory.class).newInstance());
             try {
-                final Method mkm = cl.getDeclaredMethod("mkinfo", Owner.class, Object[].class);
-                int mod = mkm.getModifiers();
-                if (ItemInfo.class.isAssignableFrom(mkm.getReturnType()) && ((mod & Modifier.STATIC) != 0) && ((mod & Modifier.PUBLIC) != 0)) {
-                    return (new InfoFactory() {
-                        public ItemInfo build(Owner owner, Object... args) {
-                            try {
-                                return ((ItemInfo) mkm.invoke(null, owner, args));
-                            } catch (Exception e) {
-                                if (e instanceof RuntimeException) throw ((RuntimeException) e);
-                                throw (new RuntimeException(e));
-                            }
-                        }
-                    });
-                }
-            } catch (NoSuchMethodException e) {
-            }
-            return (null);
+                Function<Object[], ItemInfo> make = Utils.smthfun(cl, "mkinfo", ItemInfo.class, Owner.class, Object[].class);
+                return(new InfoFactory() {
+                    public ItemInfo build(Owner owner, Raw raw, Object... args) {
+                        return(make.apply(new Object[]{owner, args}));
+                    }
+                });
+            } catch(NoSuchMethodException e) {}
+            try {
+                Function<Object[], ItemInfo> make = Utils.smthfun(cl, "mkinfo", ItemInfo.class, Owner.class, Raw.class, Object[].class);
+                return(new InfoFactory() {
+                    public ItemInfo build(Owner owner, Raw raw, Object... args) {
+                        return(make.apply(new Object[]{owner, raw, args}));
+                    }
+                });
+            } catch(NoSuchMethodException e) {}
+            return(null);
         }
     }
 
@@ -89,6 +113,7 @@ public abstract class ItemInfo {
         private final List<Tip> tips = new ArrayList<Tip>();
         private final Map<ID, Tip> itab = new HashMap<ID, Tip>();
         public final CompImage cmp = new CompImage();
+        public int width = 0;
 
         public interface ID<T extends Tip> {
             public T make();
@@ -126,13 +151,12 @@ public abstract class ItemInfo {
             super(owner);
         }
 
-        @Deprecated
-        public BufferedImage longtip() {
+        public BufferedImage tipimg() {
             return (null);
         }
 
-        public BufferedImage tipimg() {
-            return (longtip());
+        public BufferedImage tipimg(int w) {
+            return (tipimg());
         }
 
         public Tip shortvar() {
@@ -143,9 +167,9 @@ public abstract class ItemInfo {
         }
 
         public void layout(Layout l) {
-            BufferedImage t = tipimg();
+            BufferedImage t = tipimg(l.width);
             if (t != null)
-                l.cmp.add(tipimg(), new Coord(0, l.cmp.sz.y));
+                l.cmp.add(t, new Coord(0, l.cmp.sz.y));
         }
 
         public int order() {
@@ -196,6 +220,29 @@ public abstract class ItemInfo {
                     return (0);
                 }
             });
+        }
+    }
+
+    public static class Pagina extends Tip {
+        public final String str;
+
+        public Pagina(Owner owner, String str) {
+            super(owner);
+            this.str = str;
+        }
+
+        public BufferedImage tipimg(int w) {
+            return (RichText.render(str, w).img);
+        }
+
+        public void layout(Layout l) {
+            BufferedImage t = tipimg((l.width == 0) ? 200 : l.width);
+            if (t != null)
+                l.cmp.add(t, new Coord(0, l.cmp.sz.y + 10));
+        }
+
+        public int order() {
+            return (10000);
         }
     }
 
@@ -331,33 +378,53 @@ public abstract class ItemInfo {
         return (null);
     }
 
-    public static List<ItemInfo> buildinfo(Owner owner, Object[] rawinfo) {
+
+    private static final Map<String, ItemInfo.InfoFactory> customFactories = new HashMap<>(14);
+
+    static {
+        customFactories.put("paginae/gov/enact/backwater", new BackwaterFactory());
+        customFactories.put("paginae/gov/enact/bullmyth", new BullmythFactory());
+        customFactories.put("paginae/gov/enact/centeroflearning", new CenteroflearningFactory());
+        customFactories.put("paginae/gov/enact/fecundearth", new FecundearthFactory());
+        customFactories.put("paginae/gov/enact/foundingmythos", new FoundingmythosFactory());
+        customFactories.put("paginae/gov/enact/gamekeeping", new GamekeepingFactory());
+        customFactories.put("paginae/gov/enact/guardedmarches", new GuardedmarchesFactory());
+        customFactories.put("paginae/gov/enact/heraldicswan", new HeraldicswanFactory());
+        customFactories.put("paginae/gov/enact/localcuisine", new LocalcuisineFactory());
+        customFactories.put("paginae/gov/enact/mountaintradition", new MountaintraditionFactory());
+        customFactories.put("paginae/gov/enact/seamarriage", new SeamarriageFactory());
+        customFactories.put("paginae/gov/enact/woodlandrealm", new WoodlandrealmFactory());
+
+        customFactories.put("ui/tt/armor", new ArmorFactory());
+        customFactories.put("ui/tt/wear", new WearFactory());
+    }
+
+    public static List<ItemInfo> buildinfo(Owner owner, Raw raw) {
         List<ItemInfo> ret = new ArrayList<ItemInfo>();
-        for (Object o : rawinfo) {
+        for(Object o : raw.data) {
             if (o instanceof Object[]) {
                 Object[] a = (Object[]) o;
-                Resource ttres;
+                Resource ttres= null;
+                InfoFactory f = null;
                 if (a[0] instanceof Integer) {
                     ttres = owner.glob().sess.getres((Integer) a[0]).get();
                 } else if (a[0] instanceof Resource) {
                     ttres = (Resource) a[0];
                 } else if (a[0] instanceof Indir) {
                     ttres = (Resource) ((Indir) a[0]).get();
+                } else if (a[0] instanceof InfoFactory) {
+                    f = (InfoFactory) a[0];
                 } else {
                     throw (new ClassCastException("Unexpected info specification " + a[0].getClass()));
                 }
 
-                InfoFactory f;
-                // custom armor and wear classes are used because server returns identically named class "Wear"
-                // for both of those.
-                if (ttres.name.equals("ui/tt/armor"))
-                    f = new ArmorFactory();
-                else if (ttres.name.equals("ui/tt/wear"))
-                    f = new WearFactory();
-                else
-                    f = ttres.getcode(InfoFactory.class, true);
+                if (f == null) {
+                    f = customFactories.get(ttres.name);
+                    if (f == null)
+                        f = ttres.getcode(InfoFactory.class, true);
+                }
 
-                ItemInfo inf = f.build(owner, a);
+                ItemInfo inf = f.build(owner, raw, a);
                 if (inf != null)
                     ret.add(inf);
             } else if (o instanceof String) {
@@ -367,6 +434,10 @@ public abstract class ItemInfo {
             }
         }
         return (ret);
+    }
+
+    public static List<ItemInfo> buildinfo(Owner owner, Object[] rawinfo) {
+        return(buildinfo(owner, new Raw(rawinfo)));
     }
 
     private static String dump(Object arg) {
@@ -384,6 +455,50 @@ public abstract class ItemInfo {
             return (buf.toString());
         } else {
             return (arg.toString());
+        }
+    }
+
+    public static class AttrCache<R> implements Indir<R> {
+        private final Supplier<List<ItemInfo>> from;
+        private final Function<List<ItemInfo>, Supplier<R>> data;
+        private List<ItemInfo> forinfo = null;
+        private Supplier<R> save;
+
+        public AttrCache(Supplier<List<ItemInfo>> from, Function<List<ItemInfo>, Supplier<R>> data) {
+            this.from = from;
+            this.data = data;
+        }
+
+        public R get() {
+            try {
+                List<ItemInfo> info = from.get();
+                if (info != forinfo) {
+                    save = data.apply(info);
+                    forinfo = info;
+                }
+                return (save.get());
+            } catch (Loading l) {
+                return (null);
+            }
+        }
+
+        public static <I, R> Function<List<ItemInfo>, Supplier<R>> map1(Class<I> icl, Function<I, Supplier<R>> data) {
+            return(info -> {
+                I inf = find(icl, info);
+                if(inf == null)
+                    return(() -> null);
+                return(data.apply(inf));
+            });
+        }
+
+        public static <I, R> Function<List<ItemInfo>, Supplier<R>> map1s(Class<I> icl, Function<I, R> data) {
+            return(info -> {
+                I inf = find(icl, info);
+                if(inf == null)
+                    return(() -> null);
+                R ret = data.apply(inf);
+                return(() -> ret);
+            });
         }
     }
 }

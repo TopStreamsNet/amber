@@ -10,6 +10,7 @@ import haven.FastMesh.MeshRes as MeshRes
 
 
 from time import sleep, time
+import sys
 
 import JbotUtils
 reload(JbotUtils)
@@ -140,7 +141,7 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
         return [ability, tile, coord]
 
     def cur_cycle(self):
-        return int(self.gui.map.glob.globtime()/1000/PLANT_FREQ)
+        return int(self.gui.map.glob.globtime()/PLANT_FREQ)
 
     def shouldplant(self):
         if self.cur_cycle() > self.last_planted_cycle:
@@ -359,7 +360,10 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
                     self.getBarrelInfo()
 
                 [ability, tile, coord] = self.check_next_tile()
-                print("Next action: {0} tile: {1} coord: {2}".format(ability, tile, coord))
+                sys.stdout.write("Next action: {0} tile: {1} coord: {2} [{3}>{4} {5}]".format(ability, tile, coord, self.cur_cycle(), self.last_planted_cycle, self.gui.map.glob.globtime()))
+                sys.stdout.flush()
+                sys.stdout.write("\r")
+                sys.stdout.flush()
                 if ability == "CanPlant" and self.shouldplant() == True and self.takeseed() == True:
                     HavenPanel.lui.cons.out.println("Next action: {0} tile: {1} coord: {2}".format(ability, tile, coord))
                     self.plant(tile, Coord2d(coord))
