@@ -220,7 +220,7 @@ public class Config {
         put("gorse", new CheckListboxItem("Gorse"));
     }};
 
-    public final static HashMap<String, CheckListboxItem> trees = new HashMap<String, CheckListboxItem>(52) {{
+    public final static HashMap<String, CheckListboxItem> trees = new HashMap<String, CheckListboxItem>(54) {{
         put("alder", new CheckListboxItem("Alder"));
         put("corkoak", new CheckListboxItem("Corkoak"));
         put("plumtree", new CheckListboxItem("Plum Tree"));
@@ -273,9 +273,11 @@ public class Config {
         put("lotetree", new CheckListboxItem("Lote Tree"));
         put("sorbtree", new CheckListboxItem("Sorb"));
         put("persimmontree", new CheckListboxItem("Persimmon"));
+        put("medlartree", new CheckListboxItem("Medlar"));
+        put("silverfir", new CheckListboxItem("Silver Fir"));
     }};
 
-    public final static HashMap<String, CheckListboxItem> icons = new HashMap<String, CheckListboxItem>(47) {{
+    public final static HashMap<String, CheckListboxItem> icons = new HashMap<String, CheckListboxItem>(49) {{
         put("dandelion", new CheckListboxItem("Dandelion"));
         put("chantrelle", new CheckListboxItem("Chantrelle"));
         put("blueberry", new CheckListboxItem("Blueberry"));
@@ -324,6 +326,8 @@ public class Config {
         put("cavemoth", new CheckListboxItem("Cave Moth"));
         put("thornythistle", new CheckListboxItem("Thorny Thistle"));
         put("mistletoe", new CheckListboxItem("Mistletoe"));
+        put("waterstrider", new CheckListboxItem("Waterstrider"));
+        put("firefly", new CheckListboxItem("Firefly"));
     }};
 
     public final static HashMap<String, CheckListboxItem> flowermenus = new HashMap<String, CheckListboxItem>(19) {{
@@ -392,7 +396,8 @@ public class Config {
             "gfx/terobjs/claypit",
             "gfx/terobjs/caveorgan",
             "gfx/terobjs/crystalpatch",
-            "gfx/terobjs/fairystone"));
+            "gfx/terobjs/fairystone",
+            "gfx/terobjs/lilypadlotus"));
 
     public final static Set<String> mineablesStone = new HashSet<String>(Arrays.asList(
             "gneiss",
