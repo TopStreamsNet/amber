@@ -1,3 +1,14 @@
+Version 1.70.0
+    New:
+        * Minimap zoom and icon tooltips (by Ropston).
+        * Options to drop soil and everything from the inventory (by lcy03406).
+
+    Misc:
+        * Updated stones list.
+        * Updated wound treatments.
+        * Upstream code merge.
+
+
 Version 1.69.4
     Fixed:
         * Fix resource tooltip not disappearing after turning the resource viewer off.

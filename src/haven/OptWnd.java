@@ -858,6 +858,28 @@ public class OptWnd extends Window {
                 a = val;
             }
         });
+        appender.add(new CheckBox("Drop everything!!!") {
+            {
+                a = Config.dropEverything;
+            }
+
+            public void set(boolean val) {
+                //Utils.setprefb("dropEverything", val);
+                Config.dropEverything = val;
+                a = val;
+            }
+        });
+        appender.add(new CheckBox("Drop soil") {
+            {
+                a = Config.dropSoil;
+            }
+
+            public void set(boolean val) {
+                Utils.setprefb("dropSoil", val);
+                Config.dropSoil = val;
+                a = val;
+            }
+        });
         general.add(new PButton(200, "Back", 27, main), new Coord(210, 360));
         general.pack();
     }
