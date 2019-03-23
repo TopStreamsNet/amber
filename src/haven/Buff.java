@@ -119,7 +119,7 @@ public class Buff extends Widget implements ItemInfo.ResOwner {
 
     public void draw(GOut g) {
         g.chcolor(255, 255, 255, a);
-        Double ameter = (this.ameter >= 0) ? (this.ameter / 100.0) : ameteri.get();
+       	Double ameter = (this.ameter >= 0) ? (this.ameter / 100.0) : Optional.ofNullable(ameteri.get()).orElse(0.0);
         if (ameter != null) {
             g.image(cframe, Coord.z);
             g.chcolor(0, 0, 0, a);

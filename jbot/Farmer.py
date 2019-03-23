@@ -19,7 +19,7 @@ from JbotUtils import *
 # Config
 PLANT_FREQ = 3600
 PLANT_NUM = 1
-HARVEST_STAGE = 3
+HARVEST_STAGE = 1
 TIMEOUT = 5
 MAX_SEEDS = 15 #Druidic Rite
 
