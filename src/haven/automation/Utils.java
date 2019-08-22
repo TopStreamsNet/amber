@@ -160,4 +160,37 @@ public class Utils {
         }
         return null;
     }
+    
+    public static Gob player(GameUI gui) {
+		return gui.map.player();
+	}
+    
+    	public static Gob findObjectByNames(GameUI gui, int radius, String... names) {
+		Coord2d plc = player(gui).rc;
+		double min = radius;
+		Gob nearest = null;
+		synchronized (gui.ui.sess.glob.oc) {
+			for (Gob gob : gui.ui.sess.glob.oc) {
+				double dist = gob.rc.dist(plc);
+				if (dist < min) {
+					boolean matches = false;
+					for (String name : names) {
+						try {
+							if(gob.getres() != null && gob.getres().name.equals(name)) {
+								matches = true;
+								break;
+							}
+						} catch(Session.LoadingIndir l) {
+
+						}
+					}
+					if (matches) {
+						min = dist;
+						nearest = gob;
+					}
+				}
+			}
+		}
+		return nearest;
+	}
 }

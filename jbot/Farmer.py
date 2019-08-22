@@ -17,11 +17,11 @@ reload(JbotUtils)
 from JbotUtils import *
 
 # Config
-PLANT_FREQ = 3600
+PLANT_FREQ = 180
 PLANT_NUM = 1
 HARVEST_STAGE = 1
-TIMEOUT = 5
-MAX_SEEDS = 15 #Druidic Rite
+TIMEOUT = 20
+MAX_SEEDS = 40
 
 class State:
     WAIT, RUN, TERM = range(3)
@@ -197,12 +197,12 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
             brlInfo = getBarrelContent(brlwnd)
             quality = 0
             if brlInfo['quantity'] > 0:
-                previous_seeds_count = self.gui.maininv.getItemPartialCount("seeds")
-                previous_seeds = self.gui.maininv.getItemsPartial("seeds")
+                previous_seeds_count = self.gui.maininv.getItemPartialCount("seed")
+                previous_seeds = self.gui.maininv.getItemsPartial("seed")
                 self.gui.map.pfRightClick(barrel, -1, 3, 1, None)
                 self.gui.map.pfthread.join()
                 tout=0
-                while(self.gui.maininv.getItemPartialCount("seeds") <= previous_seeds_count):
+                while(self.gui.maininv.getItemPartialCount("seed") <= previous_seeds_count):
                     sleep(1)
                     tout += 1
                     if tout > TIMEOUT:
@@ -211,7 +211,7 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
                 if tout > TIMEOUT:
                     continue
                 # Check new seeds
-                for seeds in self.gui.maininv.getItemsPartial("seeds"):
+                for seeds in self.gui.maininv.getItemsPartial("seed"):
                     if seeds in previous_seeds:
                         continue
                     quality = seeds.item.quality().q
@@ -226,6 +226,7 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
             self.barrelsInfo_dirty=False
 
     def sortseeds(self):
+        # Seeds with existing quality
         for seeds in self.gui.maininv.getItemsPartial("seed"):
             HavenPanel.lui.cons.out.println("sorting {0}".format(seeds));
             seedquality = seeds.item.quality().q
@@ -233,27 +234,49 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
             trash = None
             for barrelInfo in sorted(self.barrelsInfo.items(), key=lambda x: x[1]['quality'], reverse=True):
                 (barrel, info) = barrelInfo
-                if seedquality >= info['quality']:
+                if (int(info['quality']) == int(seedquality)):
+                    self.gui.map.pfRightClick(barrel, -1, 3, 0, None)
+                    self.gui.map.pfthread.join()
+
+                    HavenPanel.lui.cons.out.println("Arrived at barrel");
                     if takeitem(seeds,TIMEOUT) is not None:
                         itemactgob(barrel,0,True,TIMEOUT,Coord(self.TopLeft.x+self.field_length/2,self.TopLeft.y+self.field_width/2))
+                        HavenPanel.lui.cons.out.println("Clicked Barrel");
+                        Utils.waitForEmptyHand(self.gui,6000,"Can't put into barrel")
                         self.barrelsInfo[barrel]['quantity'] += seednum
                     break
+                '''                
                 trash = barrel
             if trash is not None:
                 if takeitem(seeds,TIMEOUT) is not None:
                     itemactgob(trash,0,True,TIMEOUT,Coord(self.TopLeft.x+self.field_length/2,self.TopLeft.y+self.field_width/2))
                     self.barrelsInfo[trash]['quantity'] += seednum
+                '''
+        # Seeds to empty barrels
+        for seeds in self.gui.maininv.getItemsPartial("seed"):
+            HavenPanel.lui.cons.out.println("sorting {0}".format(seeds));
+            seedquality = seeds.item.quality().q
+            seednum = getnum(seeds)
+            trash = None
+            for barrelInfo in sorted(self.barrelsInfo.items(), key=lambda x: x[1]['quality'], reverse=True):
+                (barrel, info) = barrelInfo
+                if info['quality'] == 0:
+                    if takeitem(seeds,TIMEOUT) is not None:
+                        itemactgob(barrel,0,True,TIMEOUT,Coord(self.TopLeft.x+self.field_length/2,self.TopLeft.y+self.field_width/2))
+                        self.barrelsInfo[barrel]['quantity'] += seednum
+                        self.barrelsInfo[barrel]['quality'] = seedquality
+                    break
         self.barrelsInfo_dirty = True
-
+    
     def getseedsfrombarrel(self, barrel):
         seeds = None
         HavenPanel.lui.cons.out.println("GetSeed {0}".format(barrel))
-        previous_seeds_count = self.gui.maininv.getItemPartialCount("seeds")
-        previous_seeds = self.gui.maininv.getItemsPartial("seeds")
+        previous_seeds_count = self.gui.maininv.getItemPartialCount("seed")
+        previous_seeds = self.gui.maininv.getItemsPartial("seed")
         self.gui.map.pfRightClick(barrel, -1, 3, 1, None)
         self.gui.map.pfthread.join()
         tout=0
-        while(self.gui.maininv.getItemPartialCount("seeds") <= previous_seeds_count):
+        while(self.gui.maininv.getItemPartialCount("seed") <= previous_seeds_count):
             sleep(1)
             tout += 1
             if tout > TIMEOUT:
@@ -261,12 +284,12 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
         if fallbackonfail((tout > TIMEOUT),Coord(self.TopLeft.x+self.field_length/2,self.TopLeft.y+self.field_width/2)):
             self.gui.map.pfRightClick(barrel, -1, 3, 1, None)
             self.gui.map.pfthread.join()
-            while(self.gui.maininv.getItemPartialCount("seeds") <= previous_seeds_count):
+            while(self.gui.maininv.getItemPartialCount("seed") <= previous_seeds_count):
                 sleep(1)
                 tout += 1
                 if tout > TIMEOUT:
                     break
-        for seeds in self.gui.maininv.getItemsPartial("seeds"):
+        for seeds in self.gui.maininv.getItemsPartial("seed"):
             if seeds not in previous_seeds:
                 iteminfo = seeds.item.info()
                 ninf = ItemInfo.find(GItem.NumberInfo, iteminfo)
@@ -277,7 +300,7 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
     def takeseed(self):
         topq = 0
         topseeds = None
-        for seeds in self.gui.maininv.getItemsPartial("seeds"):
+        for seeds in self.gui.maininv.getItemsPartial("seed"):
             if seeds.item.quality().q >= topq:
                 iteminfo = seeds.item.info()
                 ninf = ItemInfo.find(GItem.NumberInfo, iteminfo)
@@ -323,15 +346,17 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
         flowermenu = HavenPanel.lui.root.getchild(FlowerMenu)
         for i in range(len(flowermenu.opts)):
             if flowermenu.opts[i].name == "Harvest":
-                previous_seeds = self.gui.maininv.getItemsPartial("seeds")
+                previous_seeds = self.gui.maininv.getItemsPartial("seed")
                 previous_nums = {}
                 for seeds in previous_seeds:
                     previous_nums[seeds]=getnum(seeds)
 
                 HavenPanel.lui.cons.out.println("Going to Harvest {0}".format(harvestable))
                 flowermenu.choose(flowermenu.opts[i])
-                if Utils.waitForProgressFinish(self.gui,6000,"Stuck in Harvesting") == True:
-                    for seeds in self.gui.maininv.getItemsPartial("seeds"):
+                sleep(1)
+                if Utils.waitForProgressFinish(self.gui,20000,"Stuck in Harvesting") == True:
+                    HavenPanel.lui.cons.out.println("Progress Finished!")
+                    for seeds in self.gui.maininv.getItemsPartial("seed"):
                         if seeds not in previous_seeds:
                             f = open('plant.log', 'a+')
                             f.write("[{0}] tile={1} quality={2}\n".format(self.gui.map.glob.servertime,
@@ -346,7 +371,11 @@ class FarmerBot(GobSelectCallback, AreaSelectCallback, Window):
                                                                           seeds.item.quality().q))
                             f.close()
                             break
+                else:
+                    HavenPanel.lui.cons.out.println("Progress NOT Finished!")
+                    harvest(self, tile, harvestable)
                 break
+
 
     def run(self):
         self.gui = HavenPanel.lui.root.getchild(GameUI)

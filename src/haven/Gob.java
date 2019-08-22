@@ -29,6 +29,9 @@ package haven;
 import haven.resutil.BPRadSprite;
 
 import java.awt.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
@@ -566,8 +569,23 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
 
             if (Config.showboundingboxes) {
                 GobHitbox.BBox bbox = GobHitbox.getBBox(this);
-                if (bbox != null)
+                if (bbox != null){
+                    /*
+                    Resource res = null;
+                    try {
+                        res = this.getres();
+                    } catch (Loading l) {
+                    }
+                    String name = res.name;
+                    try {
+                    BufferedWriter writer = new BufferedWriter(new FileWriter("bbox.erl", true));
+                    writer.write("get(\""+name+"\") -> {bbox,{{"+bbox.a.x+","+bbox.a.y+"},{"+bbox.b.x+","+bbox.b.y+"}}};\n");
+                    writer.close();
+                    }catch(IOException Io){
+                        
+                    }*/
                     rl.add(new Overlay(new GobHitbox(this, bbox.a, bbox.b, false)), null);
+                }
             }
 
             if (Config.showplantgrowstage) {
