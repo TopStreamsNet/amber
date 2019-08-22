@@ -1,3 +1,26 @@
+Version 1.72.1
+    Misc:
+        * Upstream code merge.
+
+Version 1.72.0
+    Fixed:
+        * Crash when viewing certain gilded items.
+
+    Misc:
+        * Removed Yarrow from Jellyfish Sting treatments.
+        * Upstream code merge.
+
+Version 1.71.0
+    Misc:
+        * Updated wound treatments.
+        * Added Mayflower to trees list.
+        * Upstream code merge.
+
+Version 1.70.1
+    Misc:
+        * Updated stones list.
+        * Upstream code merge.
+
 Version 1.70.0
     New:
         * Minimap zoom and icon tooltips (by Ropston).

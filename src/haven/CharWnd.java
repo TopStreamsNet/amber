@@ -336,7 +336,7 @@ public class CharWnd extends Window {
             public Tex at() {
                 if (at == null) {
                     Color c = (a > 1.0) ? buffed : Utils.blendcol(none, full, a);
-                    at = elf.render(String.format("%d%%", (int) Math.floor(a * 100)), c).tex();
+                    at = elf.render(String.format("%d%%", (int)Math.ceil((1.0 - a) * 100)), c).tex();
                 }
                 return (at);
             }
@@ -990,7 +990,7 @@ public class CharWnd extends Window {
     }
 
     public static class Quest {
-        public static final int QST_PEND = 0, QST_DONE = 1, QST_FAIL = 2;
+        public static final int QST_PEND = 0, QST_DONE = 1, QST_FAIL = 2, QST_DISABLED = 3;
         public static final Color[] stcol = {
                 new Color(255, 255, 64), new Color(64, 255, 64), new Color(255, 64, 64),
         };
@@ -1167,6 +1167,20 @@ public class CharWnd extends Window {
                 return(cond);
             }
 
+            private CharWnd cw = null;
+            public int done() {
+                if(cw == null)
+                    cw = getparent(CharWnd.class);
+                if(cw == null)
+                    return(Quest.QST_PEND);
+                Quest qst;
+                if((qst = cw.cqst.get(id)) != null)
+                    return(qst.done);
+                if((qst = cw.dqst.get(id)) != null)
+                    return(qst.done);
+                return(Quest.QST_PEND);
+            }
+
             public void refresh() {
             }
 
@@ -1262,6 +1276,8 @@ public class CharWnd extends Window {
                 public String title();
 
                 public Condition[] conds();
+
+                public int done();
             }
 
             public QView(QVInfo info) {
@@ -1287,6 +1303,8 @@ public class CharWnd extends Window {
                 if (rtitle != null) {
                     if (rootxlate(ui.mc).isect(Coord.z, rtitle.sz()))
                         g.chcolor(192, 192, 255, 255);
+                    else if(info.done() == QST_DISABLED)
+                        g.chcolor(255, 128, 0, 255);
                     g.image(rtitle, new Coord(3, y));
                     g.chcolor();
                     y += rtitle.sz().y + 5;
@@ -1532,7 +1550,7 @@ public class CharWnd extends Window {
         public final Text.Foundry prsf = Text.std;
         public List<Credo> ncr = Collections.emptyList(), ccr = Collections.emptyList();
         public Credo pcr = null;
-        public int pcl, pclt, pcql, pcqlt, pqid;
+        public int pcl, pclt, pcql, pcqlt, pqid, cost;
         public Credo sel = null;
         private final Img pcrc, ncrc, ccrc;
         private final Button pbtn, qbtn;
@@ -1624,6 +1642,8 @@ public class CharWnd extends Window {
                 y = crgrid(y, ncr);
                 if(pcr == null) {
                     cont.add(pbtn, 5, y);
+                    if(cost > 0)
+                        cont.adda(new Label(String.format("Cost: %,d LP", cost)), pbtn.c.x + pbtn.sz.x + 10, pbtn.c.y + (pbtn.sz.y / 2), 0, 0.5);
                     y += pbtn.sz.y;
                 }
                 y += 10;
@@ -1887,7 +1907,10 @@ public class CharWnd extends Window {
             } catch (Loading e) {
                 g.image(WItem.missing.layer(Resource.imgc).tex(), Coord.z, new Coord(itemh, itemh));
             }
+            if(q.done == Quest.QST_DISABLED)
+                g.chcolor(255, 128, 0, 255);
             g.aimage(q.rnm.get().tex(), new Coord(itemh + 5, itemh / 2), 0, 0.5);
+            g.chcolor();
         }
 
         public void change(Quest q) {
@@ -2400,6 +2423,8 @@ public class CharWnd extends Window {
             credos.ccr(deccrlist(args, 0, true));
         } else if(nm == "ncr") {
             credos.ncr(deccrlist(args, 0, false));
+        } else if(nm == "crcost") {
+            credos.cost = (Integer)args[0];
         } else if(nm == "pcr") {
             if(args.length > 0) {
                 int a = 0;
@@ -2448,10 +2473,11 @@ public class CharWnd extends Window {
                         q.res = res;
                         q.done = st;
                         q.mtime = mtime;
-                        if((fst == Quest.QST_PEND) && (st != Quest.QST_PEND))
+                        if(((fst == Quest.QST_PEND) || (fst == Quest.QST_DISABLED)) &&
+                                !((st == Quest.QST_PEND) || (st == Quest.QST_DISABLED)))
                             q.done(getparent(GameUI.class));
                     }
-                    QuestList nl = (q.done == Quest.QST_PEND)?cqst:dqst;
+                    QuestList nl = ((q.done == Quest.QST_PEND) || (q.done == Quest.QST_DISABLED)) ? cqst : dqst;
                     if(nl != cl) {
                         if(cl != null)
                             cl.remove(q);

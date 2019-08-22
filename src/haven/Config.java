@@ -233,7 +233,7 @@ public class Config {
         put("gorse", new CheckListboxItem("Gorse"));
     }};
 
-    public final static HashMap<String, CheckListboxItem> trees = new HashMap<String, CheckListboxItem>(54) {{
+    public final static HashMap<String, CheckListboxItem> trees = new HashMap<String, CheckListboxItem>(55) {{
         put("alder", new CheckListboxItem("Alder"));
         put("corkoak", new CheckListboxItem("Corkoak"));
         put("plumtree", new CheckListboxItem("Plum Tree"));
@@ -288,6 +288,7 @@ public class Config {
         put("persimmontree", new CheckListboxItem("Persimmon"));
         put("medlartree", new CheckListboxItem("Medlar"));
         put("silverfir", new CheckListboxItem("Silver Fir"));
+        put("mayflower", new CheckListboxItem("Mayflower"));
     }};
 
     public final static HashMap<String, CheckListboxItem> icons = new HashMap<String, CheckListboxItem>(49) {{
@@ -438,7 +439,9 @@ public class Config {
             "microlite",
             "orthoclase",
             "soapstone",
-            "sodalite"
+            "sodalite",
+            "olivine",
+            "alabaster"
     ));
 
 
@@ -474,7 +477,7 @@ public class Config {
         put("/idle", new CheckListboxItem("Idle animals"));
     }};
 
-    public final static HashMap<String, String[]> cures = new HashMap<String, String[]>(24) {{
+    public final static HashMap<String, String[]> cures = new HashMap<String, String[]>(25) {{
         put("paginae/wound/antburn", new String[]{
                 "gfx/invobjs/herbs/yarrow"
         });
@@ -574,6 +577,9 @@ public class Config {
                 "gfx/invobjs/toadbutter"
         });
         put("paginae/wound/midgebite", new String[]{
+                "gfx/invobjs/herbs/yarrow"
+        });
+        put("paginae/wound/sandfleabites", new String[]{
                 "gfx/invobjs/herbs/yarrow"
         });
     }};

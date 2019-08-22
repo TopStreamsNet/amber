@@ -35,7 +35,7 @@ import static haven.OCache.posres;
 import static haven.automation.Utils.bytesToHex;
 
 public class Session implements Resource.Resolver {
-    public static final int PVER = 18;
+    public static final int PVER = 21;
 
     public static final int MSG_SESS = 0;
     public static final int MSG_REL = 1;
